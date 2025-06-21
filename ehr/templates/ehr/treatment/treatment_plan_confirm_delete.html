@@ -1,0 +1,236 @@
+{% extends 'ehr/base.html' %}
+
+{% block title %}Delete Treatment Plan{% endblock %}
+
+{% block content %}
+<style>
+    :root {
+        --bg-primary: #0b1120;
+        --bg-secondary: #0b1120;
+        --accent-color: #2ec8a6;
+        --danger-color: #ff6b6b;
+        --text-primary: #f8fafc;
+        --text-secondary: #94a3b8;
+        --border-color: #1e293b;
+    }
+
+    .delete-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        background-color: var(--bg-secondary);
+        padding: 2rem;
+    }
+
+    .delete-confirmation {
+        width: 100%;
+        max-width: 600px;
+        background-color: var(--bg-primary);
+        border-radius: 16px;
+        padding: 2.5rem;
+        border: 1px solid var(--danger-color);
+        animation: fadeInUp 0.4s ease-out forwards;
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .confirmation-header {
+        text-align: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .warning-icon {
+        width: 72px;
+        height: 72px;
+        margin: 0 auto 1.5rem;
+        background-color: rgba(255, 107, 107, 0.1);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 2px solid var(--danger-color);
+    }
+
+    .warning-icon svg {
+        width: 32px;
+        height: 32px;
+        stroke: var(--danger-color);
+        stroke-width: 1.5;
+    }
+
+    .confirmation-title {
+        font-size: 1.6rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 0.75rem;
+    }
+
+    .plan-preview {
+        background-color: var(--bg-secondary);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        border-left: 4px solid var(--danger-color);
+    }
+
+    .preview-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 1rem;
+    }
+
+    .preview-detail {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .detail-label {
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+    }
+
+    .detail-value {
+        font-size: 0.95rem;
+        color: var(--text-primary);
+    }
+
+    .warning-message {
+        padding: 1rem;
+        border-radius: 8px;
+        background-color: rgba(255, 107, 107, 0.1);
+        border-left: 3px solid var(--danger-color);
+        color: var(--danger-color);
+        margin-bottom: 2rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .confirmation-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 1rem;
+    }
+
+    .btn {
+        padding: 0.9rem 1.5rem;
+        border-radius: 10px;
+        font-weight: 500;
+        font-size: 0.95rem;
+        transition: all 0.2s ease;
+        cursor: pointer;
+    }
+
+    .btn-danger {
+        background-color: var(--danger-color);
+        border: none;
+        color: var(--text-primary);
+    }
+
+    .btn-danger:hover {
+        background-color: #ff4757;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(255, 107, 107, 0.3);
+    }
+
+    .btn-outline {
+        background-color: transparent;
+        border: 1px solid var(--text-secondary);
+        color: var(--text-secondary);
+    }
+
+    .btn-outline:hover {
+        border-color: var(--text-primary);
+        color: var(--text-primary);
+    }
+
+    @media (max-width: 768px) {
+        .delete-confirmation {
+            padding: 1.5rem;
+        }
+
+        .preview-detail {
+            grid-template-columns: 1fr;
+        }
+
+        .confirmation-actions {
+            flex-direction: column;
+        }
+
+        .btn {
+            width: 100%;
+        }
+    }
+</style>
+
+<div class="delete-container">
+    <div class="delete-confirmation">
+        <div class="confirmation-header">
+            <div class="warning-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                    <line x1="12" y1="9" x2="12" y2="13"></line>
+                    <line x1="12" y1="17" x2="12" y2="17"></line>
+                </svg>
+            </div>
+            <h2 class="confirmation-title">Delete Treatment Plan</h2>
+        </div>
+
+        <div class="plan-preview">
+            <h6 class="preview-title">Treatment Plan Details</h6>
+            <div class="preview-detail">
+                <div>
+                    <div class="detail-label">Patient</div>
+                    <div class="detail-value">{{ object.patient.first_name }} {{ object.patient.last_name }}</div>
+                </div>
+                <div>
+                    <div class="detail-label">Diagnosis</div>
+                    <div class="detail-value">{{ object.diagnosis }}</div>
+                </div>
+                <div>
+                    <div class="detail-label">Provider</div>
+                    <div class="detail-value">{{ object.provider.get_full_name }}</div>
+                </div>
+                <div>
+                    <div class="detail-label">Start Date</div>
+                    <div class="detail-value">{{ object.start_date|date:"M d, Y" }}</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="warning-message">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <line x1="12" y1="16" x2="12" y2="16"></line>
+            </svg>
+            This action cannot be undone. All associated progress notes will also be deleted.
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+            <div class="confirmation-actions">
+                <a href="{% url 'treatment_plan_detail' object.pk %}" class="btn btn-outline">
+                    Cancel
+                </a>
+                <button type="submit" class="btn btn-danger">
+                    Delete Treatment Plan
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

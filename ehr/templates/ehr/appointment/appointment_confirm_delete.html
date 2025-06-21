@@ -1,0 +1,192 @@
+{% extends 'ehr/base.html' %}
+
+{% block title %}Delete Appointment{% endblock %}
+
+{% block content %}
+<style>
+    :root {
+        --bg-primary: #0b1120;
+        --bg-secondary: #0b1120;
+        --accent-color: #2ec8a6;
+        --danger-color: #ff6b6b;
+        --warning-color: #ffc107;
+        --text-primary: #f8fafc;
+        --text-secondary: #94a3b8;
+        --border-color: #1e293b;
+    }
+
+    .delete-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        /* min-height: 100vh; */
+        background-color: var(--bg-secondary);
+        padding: 2rem;
+    }
+
+    .delete-confirmation {
+        width: 100%;
+        max-width: 500px;
+        background-color: var(--bg-primary);
+        border-radius: 16px;
+        padding: 2rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        border-top: 4px solid var(--danger-color);
+        animation: fadeInUp 0.4s ease-out forwards;
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .confirmation-header {
+        text-align: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .confirmation-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+    }
+
+    .confirmation-message {
+        font-size: 1rem;
+        color: var(--text-primary);
+        margin-bottom: 1.5rem;
+        text-align: center;
+    }
+
+    .alert-warning {
+        padding: 1rem;
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+        background-color: rgba(255, 193, 7, 0.1);
+        border-left: 4px solid var(--warning-color);
+        color: var(--warning-color);
+    }
+
+    .alert-warning strong {
+        color: var(--warning-color);
+    }
+
+    .confirmation-details {
+        margin-top: 1rem;
+        padding-left: 1rem;
+        border-left: 2px solid var(--warning-color);
+    }
+
+    .confirmation-actions {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 2rem;
+    }
+
+    .btn {
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 500;
+        font-size: 0.95rem;
+        transition: all 0.2s ease;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-danger {
+        background-color: var(--danger-color);
+        border: none;
+        color: var(--text-primary);
+    }
+
+    .btn-danger:hover {
+        background-color: #ff4757;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(255, 107, 107, 0.3);
+    }
+
+    .btn-outline {
+        background-color: transparent;
+        border: 1px solid var(--text-secondary);
+        color: var(--text-secondary);
+    }
+
+    .btn-outline:hover {
+        border-color: var(--text-primary);
+        color: var(--text-primary);
+    }
+
+    @media (max-width: 480px) {
+        .delete-container {
+            padding: 1rem;
+        }
+        
+        .delete-confirmation {
+            padding: 1.5rem;
+        }
+        
+        .confirmation-actions {
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        
+        .btn {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+
+<div class="delete-container">
+    <div class="delete-confirmation">
+        <div class="confirmation-header">
+            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--danger-color)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 1rem;">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <line x1="12" y1="16" x2="12" y2="16"></line>
+            </svg>
+            <h2 class="confirmation-title">Delete Appointment</h2>
+            <p class="confirmation-message">Are you sure you want to permanently delete this appointment?</p>
+        </div>
+
+        <div class="alert-warning">
+            <strong>Appointment Details</strong>
+            <div class="confirmation-details">
+                <strong>Patient:</strong> {{ object.patient.first_name }} {{ object.patient.last_name }}<br>
+                <strong>Provider:</strong> {{ object.provider.get_full_name }}<br>
+                <strong>Date/Time:</strong> {{ object.date_time }}<br>
+                <strong>Reason:</strong> {{ object.reason|truncatechars:50 }}
+            </div>
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+            <div class="confirmation-actions">
+                <a href="{% url 'appointment_detail' object.pk %}" class="btn btn-outline">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="19" y1="12" x2="5" y2="12"></line>
+                        <polyline points="12 19 5 12 12 5"></polyline>
+                    </svg>
+                    Cancel
+                </a>
+                <button type="submit" class="btn btn-danger">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="3 6 5 6 21 6"></polyline>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                    </svg>
+                    Confirm Delete
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

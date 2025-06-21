@@ -1,0 +1,233 @@
+{% extends 'ehr/base.html' %}
+
+{% block title %}
+    {% if object %}Edit{% else %}Add{% endif %} Imaging Study
+{% endblock %}
+
+{% block content %}
+<style>
+    :root {
+        --bg-primary: #0b1120;
+        --bg-secondary: #0b1120;
+        --accent-color: #2ec8a6;
+        --text-primary: #f8fafc;
+        --text-secondary: #94a3b8;
+    }
+
+    body {
+        background-color: var(--bg-secondary);
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        color: var(--text-primary);
+    }
+
+    .form-container {
+        max-width: 700px;
+        margin: 40px auto;
+        padding: 30px;
+        background-color: var(--bg-primary);
+        border-radius: 12px;
+    }
+
+    .form-title {
+        text-align: center;
+        font-size: 1.6rem;
+        font-weight: bold;
+        margin-bottom: 25px;
+    }
+
+    label.form-label {
+        font-weight: 500;
+        color: var(--text-secondary);
+        margin-bottom: 5px;
+    }
+
+    input, select, textarea {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid #3c4451;
+        border-radius: 10px;
+        background-color: var(--bg-secondary);
+        color: var(--text-primary);
+        transition: all 0.3s ease-in-out;
+    }
+
+    input:focus, select:focus, textarea:focus {
+        border-color: var(--accent-color);
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(46, 200, 166, 0.3);
+        background-color: var(--bg-primary);
+    }
+
+    .invalid-feedback {
+        font-size: 0.875rem;
+        color: #ff6b6b;
+        margin-top: 5px;
+    }
+
+    .btn {
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-weight: 500;
+        transition: background-color 0.3s ease;
+    }
+
+    .btn-primary {
+        background-color: var(--accent-color);
+        border: none;
+        color: var(--text-primary);
+    }
+
+    .btn-primary:hover {
+        background-color: #25a38a;
+    }
+
+    .btn-outline-secondary {
+        background-color: transparent;
+        border: 1px solid #94a3b8;
+        color: var(--text-secondary);
+    }
+
+    .btn-outline-secondary:hover {
+        background-color: #1e293b;
+        color: var(--text-primary);
+    }
+
+    .alert {
+        padding: 12px 20px;
+        border-radius: 6px;
+        margin-bottom: 20px;
+        font-weight: 500;
+        text-align: center;
+    }
+
+    .alert-danger {
+        background-color: #dc3545;
+        color: #fff;
+    }
+
+    @media (max-width: 768px) {
+        .row .col-md-6 {
+            margin-bottom: 15px;
+        }
+
+        .d-flex {
+            flex-direction: column;
+        }
+
+        .btn {
+            width: 100%;
+            margin-bottom: 10px;
+        }
+    }
+</style>
+
+<div class="form-container">
+    <div class="form-title">
+        {% if object %}Edit{% else %}Add{% endif %} Imaging Study
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+        <div class="alert alert-danger">
+            {% for error in form.non_field_errors %}
+                {{ error }}
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="{{ form.patient.id_for_label }}" class="form-label">Patient</label>
+                    {{ form.patient }}
+                    {% for error in form.patient.errors %}
+                        <div class="invalid-feedback d-block">{{ error }}</div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="{{ form.study_type.id_for_label }}" class="form-label">Study Type</label>
+                    {{ form.study_type }}
+                    {% for error in form.study_type.errors %}
+                        <div class="invalid-feedback d-block">{{ error }}</div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-3">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="{{ form.study_date.id_for_label }}" class="form-label">Study Date</label>
+                    {{ form.study_date }}
+                    {% for error in form.study_date.errors %}
+                        <div class="invalid-feedback d-block">{{ error }}</div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="{{ form.facility.id_for_label }}" class="form-label">Facility</label>
+                    {{ form.facility }}
+                    {% for error in form.facility.errors %}
+                        <div class="invalid-feedback d-block">{{ error }}</div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-3">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="{{ form.ordering_provider.id_for_label }}" class="form-label">Ordering Provider</label>
+                    {{ form.ordering_provider }}
+                    {% for error in form.ordering_provider.errors %}
+                        <div class="invalid-feedback d-block">{{ error }}</div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="{{ form.status.id_for_label }}" class="form-label">Status</label>
+                    {{ form.status }}
+                    {% for error in form.status.errors %}
+                        <div class="invalid-feedback d-block">{{ error }}</div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-3 form-group">
+            <label for="{{ form.notes.id_for_label }}" class="form-label">Notes</label>
+            {{ form.notes }}
+            {% for error in form.notes.errors %}
+                <div class="invalid-feedback d-block">{{ error }}</div>
+            {% endfor %}
+        </div>
+
+        <div class="d-flex justify-content-end mt-4">
+            <a href="{% if object %}{% url 'imaging_study_detail' object.pk %}{% else %}{% url 'imaging_study_list' %}{% endif %}" 
+               class="btn btn-outline-secondary me-2">
+                Cancel
+            </a>
+            <button type="submit" class="btn btn-primary">
+                {% if object %}Update{% else %}Create{% endif %} Imaging Study
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const studyDateField = document.getElementById('{{ form.study_date.id_for_label }}');
+        if (studyDateField) {
+            studyDateField.type = 'datetime-local';
+        }
+    });
+</script>
+{% endblock %}

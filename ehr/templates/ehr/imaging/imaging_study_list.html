@@ -1,0 +1,429 @@
+{% extends 'ehr/base.html' %}
+
+{% block title %}Imaging Studies{% endblock %}
+
+{% block content %}
+<style>
+    :root {
+        --bg-primary: #0b1120;
+        --bg-secondary: #0b1120;
+        --accent-color: #2ec8a6;
+        --text-primary: #f8fafc;
+        --text-secondary: #94a3b8;
+        --border-color: #1e293b;
+        
+        /* Status Colors */
+        --danger-color: #ff6b6b;
+        --warning-color: #ffc107;
+        --scheduled-color: #8A5BFC;  /* Purple for scheduled */
+        --completed-color: #2ec8a6;  /* Teal for completed */
+        --pending-color: #ffc107;    /* Yellow for pending */
+        --cancelled-color: #ff6b6b;  /* Red for cancelled */
+        
+        /* Action Button Colors */
+        --view-color: #6366F1;       /* Indigo */
+        --edit-color: #F59E0B;       /* Amber */
+        --results-color: #10B981;    /* Emerald */
+    }
+
+    .imaging-container {
+        background-color: var(--bg-secondary);
+        padding: 2rem;
+        min-height: 100vh;
+    }
+
+    .imaging-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .imaging-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin: 0;
+    }
+
+    .btn {
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        font-weight: 500;
+        font-size: 0.9rem;
+        transition: all 0.2s ease;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-primary {
+        background-color: var(--accent-color);
+        border: none;
+        color: var(--bg-primary);
+    }
+
+    .btn-primary:hover {
+        background-color: #25a38a;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .filters-container {
+        background-color: var(--bg-primary);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .filter-form {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        align-items: end;
+    }
+
+    .form-control, .form-select {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        background-color: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        color: var(--text-primary);
+        font-size: 0.9rem;
+        transition: all 0.2s ease;
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: var(--accent-color);
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(46, 200, 166, 0.2);
+    }
+
+    .btn-outline {
+        background-color: transparent;
+        border: 1px solid var(--accent-color);
+        color: var(--accent-color);
+    }
+
+    .btn-outline:hover {
+        background-color: rgba(46, 200, 166, 0.1);
+    }
+
+    .imaging-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        background-color: var(--bg-primary);
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .imaging-table thead th {
+        background-color: var(--bg-secondary);
+        color: var(--text-secondary);
+        font-weight: 600;
+        padding: 1rem;
+        text-align: left;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .imaging-table tbody tr {
+        transition: background-color 0.2s ease;
+    }
+
+    .imaging-table tbody tr:hover {
+        background-color: rgba(46, 200, 166, 0.05);
+    }
+
+    .imaging-table tbody td {
+        padding: 1rem;
+        border-bottom: 1px solid var(--border-color);
+        color: var(--text-primary);
+    }
+
+    .badge {
+        display: inline-block;
+        padding: 0.35rem 0.65rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        line-height: 1;
+        text-align: center;
+        white-space: nowrap;
+        vertical-align: baseline;
+        border-radius: 10rem;
+        color: #000; /* Black text for all badges */
+    }
+
+    /* Status Badges */
+    .badge-scheduled {
+        background-color: var(--scheduled-color);
+    }
+
+    .badge-completed {
+        background-color: var(--completed-color);
+    }
+
+    .badge-pending {
+        background-color: var(--pending-color);
+    }
+
+    .badge-cancelled {
+        background-color: var(--cancelled-color);
+    }
+
+    /* Action Buttons */
+    .btn-view {
+        border-color: var(--view-color);
+        color: var(--view-color);
+    }
+
+    .btn-view:hover {
+        background-color: rgba(99, 102, 241, 0.1);
+    }
+
+    .btn-edit {
+        border-color: var(--edit-color);
+        color: var(--edit-color);
+    }
+
+    .btn-edit:hover {
+        background-color: rgba(245, 158, 11, 0.1);
+    }
+
+    .btn-results {
+        border-color: var(--results-color);
+        color: var(--results-color);
+    }
+
+    .btn-results:hover {
+        background-color: rgba(16, 185, 129, 0.1);
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .btn-sm {
+        padding: 0.5rem;
+        border-radius: 6px;
+        font-size: 0.8rem;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 2rem;
+        color: var(--text-secondary);
+    }
+
+    .pagination {
+        display: flex;
+        justify-content: center;
+        margin-top: 2rem;
+    }
+
+    .page-item {
+        margin: 0 0.25rem;
+    }
+
+    .page-link {
+        padding: 0.5rem 0.75rem;
+        background-color: var(--bg-primary);
+        border: 1px solid var(--border-color);
+        color: var(--text-primary);
+        border-radius: 6px;
+        transition: all 0.2s ease;
+    }
+
+    .page-link:hover {
+        background-color: var(--bg-secondary);
+        border-color: var(--accent-color);
+    }
+
+    .page-item.active .page-link {
+        background-color: var(--accent-color);
+        border-color: var(--accent-color);
+        color: var(--bg-primary);
+    }
+
+    .page-item.disabled .page-link {
+        color: var(--text-secondary);
+        background-color: var(--bg-primary);
+        border-color: var(--border-color);
+    }
+
+    @media (max-width: 768px) {
+        .imaging-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+
+        .filter-form {
+            grid-template-columns: 1fr;
+        }
+
+        .imaging-table {
+            display: block;
+            overflow-x: auto;
+        }
+    }
+</style>
+
+<div class="imaging-container">
+    <div class="imaging-header">
+        <h1 class="imaging-title">Imaging Studies</h1>
+        <a href="{% url 'imaging_study_create' %}" class="btn btn-primary">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            Add Imaging Study
+        </a>
+    </div>
+
+    <div class="filters-container">
+        <form method="get" class="filter-form">
+            <div class="form-group">
+                <input type="text" name="patient_id" class="form-control" placeholder="Patient ID" 
+                       value="{{ request.GET.patient_id }}">
+            </div>
+            <div class="form-group">
+                <select name="status" class="form-select">
+                    <option value="">All Statuses</option>
+                    <option value="Scheduled" {% if request.GET.status == "Scheduled" %}selected{% endif %}>Scheduled</option>
+                    <option value="Pending" {% if request.GET.status == "Pending" %}selected{% endif %}>Pending</option>
+                    <option value="Completed" {% if request.GET.status == "Completed" %}selected{% endif %}>Completed</option>
+                    <option value="Cancelled" {% if request.GET.status == "Cancelled" %}selected{% endif %}>Cancelled</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <button type="submit" class="btn btn-outline">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+                    </svg>
+                    Filter
+                </button>
+                <a href="{% url 'imaging_study_list' %}" class="btn btn-outline">
+                    Clear
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <div class="table-responsive">
+        <table class="imaging-table">
+            <thead>
+                <tr>
+                    <th>Patient</th>
+                    <th>Study Type</th>
+                    <th>Study Date</th>
+                    <th>Status</th>
+                    <th>Ordering Provider</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for study in object_list %}
+                <tr>
+                    <td>
+                        <a href="{% url 'patient_detail' study.patient.pk %}" style="color: var(--accent-color);">
+                            {{ study.patient.first_name }} {{ study.patient.last_name }}
+                        </a>
+                    </td>
+                    <td>{{ study.study_type }}</td>
+                    <td>{{ study.study_date|date:"M d, Y H:i" }}</td>
+                    <td>
+                        <span class="badge badge-{{ study.status|lower }}">
+                            {{ study.status }}
+                        </span>
+                    </td>
+                    <td>{{ study.ordering_provider.get_full_name }}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <a href="{% url 'imaging_study_detail' study.pk %}" class="btn btn-sm btn-view" title="View">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                </svg>
+                            </a>
+                            <a href="{% url 'imaging_study_update' study.pk %}" class="btn btn-sm btn-edit" title="Edit">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                </svg>
+                            </a>
+                            {% if study.status == 'Pending' %}
+                                <a href="{% url 'imaging_result_create' study.pk %}" class="btn btn-sm btn-results" title="Add Results">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                        <polyline points="14 2 14 8 20 8"></polyline>
+                                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                                        <polyline points="10 9 9 9 8 9"></polyline>
+                                    </svg>
+                                </a>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="empty-state">No imaging studies found</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% if is_paginated %}
+    <nav aria-label="Page navigation">
+        <ul class="pagination">
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                    Previous
+                </a>
+            </li>
+            {% else %}
+            <li class="page-item disabled">
+                <span class="page-link">Previous</span>
+            </li>
+            {% endif %}
+
+            {% for i in paginator.page_range %}
+            {% if page_obj.number == i %}
+            <li class="page-item active">
+                <span class="page-link">{{ i }}</span>
+            </li>
+            {% else %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ i }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                    {{ i }}
+                </a>
+            </li>
+            {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.next_page_number }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                    Next
+                </a>
+            </li>
+            {% else %}
+            <li class="page-item disabled">
+                <span class="page-link">Next</span>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,291 @@
+{% extends 'ehr/base.html' %}
+
+{% block title %}{% if object %}Edit{% else %}Add{% endif %} Lab Results{% endblock %}
+
+{% block content %}
+<style>
+    :root {
+        --bg-primary: #030817;
+        --bg-secondary: #030817;
+        --accent-color: #2ec8a6;
+        --text-primary: #f8fafc;
+        --text-secondary: #94a3b8;
+    }
+
+    body {
+        background-color: var(--bg-secondary);
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        color: var(--text-primary);
+    }
+
+    .form-container {
+        max-width: 700px;
+        margin: 40px auto;
+        padding: 20px;
+        background-color: var(--bg-primary);
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .form-title {
+        text-align: center;
+        font-size: 1.6rem;
+        font-weight: bold;
+        margin-bottom: 25px;
+    }
+
+    label.form-label {
+        font-weight: 500;
+        color: var(--text-secondary);
+        margin-bottom: 5px;
+    }
+
+    input, select, textarea {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid #3c4451;
+        border-radius: 10px;
+        background-color: var(--bg-secondary);
+        color: var(--text-primary);
+        transition: all 0.3s ease-in-out;
+    }
+
+    input:focus, select:focus, textarea:focus {
+        border-color: var(--accent-color);
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(46, 200, 166, 0.3);
+        background-color: var(--bg-primary);
+    }
+
+    .invalid-feedback {
+        font-size: 0.875rem;
+        color: #ff6b6b;
+        margin-top: 5px;
+    }
+
+    .text-muted {
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+    }
+
+    .btn {
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-weight: 500;
+        transition: background-color 0.3s ease;
+    }
+
+    .btn-primary {
+        background-color: var(--accent-color);
+        border: none;
+        color: var(--text-primary);
+    }
+
+    .btn-primary:hover {
+        background-color: #25a38a;
+    }
+
+    .btn-outline-secondary {
+        border: 1px solid var(--text-secondary);
+        color: var(--text-secondary);
+        background-color: transparent;
+    }
+
+    .btn-outline-secondary:hover {
+        background-color: #1c1f26;
+    }
+
+    .alert {
+        padding: 12px 20px;
+        border-radius: 6px;
+        margin-bottom: 20px;
+        font-weight: 500;
+        text-align: center;
+    }
+
+    .alert-success {
+        background-color: #2ec8a6;
+        color: #ffffff;
+    }
+
+    .alert-danger {
+        background-color: #e74c3c;
+        color: #ffffff;
+    }
+
+    @media (max-width: 768px) {
+        .row .col-md-6 {
+            margin-bottom: 15px;
+        }
+
+        .d-flex.justify-content-between {
+            flex-direction: column;
+        }
+
+        .d-flex.justify-content-between .btn {
+            width: 100%;
+            margin-bottom: 10px;
+        }
+    }
+</style>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>{% if object %}Edit{% else %}Add{% endif %} Lab Results</h2>
+    {% if object %}
+        <a href="{% url 'lab_test_detail' object.lab_test.pk %}" class="btn btn-outline-secondary">
+    {% elif lab_test %}
+        <a href="{% url 'lab_test_detail' lab_test.pk %}" class="btn btn-outline-secondary">
+    {% else %}
+        <a href="{% url 'lab_test_list' %}" class="btn btn-outline-secondary">
+    {% endif %}
+        <i class="bi bi-arrow-left"></i> Cancel
+    </a>
+</div>
+
+<div class="form-container">
+    <form method="post">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+        <div class="alert alert-danger">
+            {% for error in form.non_field_errors %}
+            {{ error }}
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label for="{{ form.lab_test.id_for_label }}" class="form-label">Lab Test</label>
+                {{ form.lab_test }}
+                {% if form.lab_test.errors %}
+                <div class="invalid-feedback d-block">
+                    {% for error in form.lab_test.errors %}
+                    {{ error }}
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+            <div class="col-md-6">
+                <label for="{{ form.result_date.id_for_label }}" class="form-label">Result Date</label>
+                {{ form.result_date }}
+                {% if form.result_date.errors %}
+                <div class="invalid-feedback d-block">
+                    {% for error in form.result_date.errors %}
+                    {{ error }}
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <label for="{{ form.result_value.id_for_label }}" class="form-label">Result Value</label>
+                {{ form.result_value }}
+                {% if form.result_value.errors %}
+                <div class="invalid-feedback d-block">
+                    {% for error in form.result_value.errors %}
+                    {{ error }}
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+            <div class="col-md-4">
+                <label for="{{ form.reference_range.id_for_label }}" class="form-label">Reference Range</label>
+                {{ form.reference_range }}
+                {% if form.reference_range.errors %}
+                <div class="invalid-feedback d-block">
+                    {% for error in form.reference_range.errors %}
+                    {{ error }}
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+            <div class="col-md-4">
+                <label for="{{ form.units.id_for_label }}" class="form-label">Units</label>
+                {{ form.units }}
+                {% if form.units.errors %}
+                <div class="invalid-feedback d-block">
+                    {% for error in form.units.errors %}
+                    {{ error }}
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <div class="form-check form-switch mt-4">
+                    {{ form.abnormal_flag }}
+                    <label class="form-check-label" for="{{ form.abnormal_flag.id_for_label }}">Abnormal Result</label>
+                </div>
+                {% if form.abnormal_flag.errors %}
+                <div class="invalid-feedback d-block">
+                    {% for error in form.abnormal_flag.errors %}
+                    {{ error }}
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+            <div class="col-md-6">
+                <label for="{{ form.reviewed_by.id_for_label }}" class="form-label">Reviewed By</label>
+                {{ form.reviewed_by }}
+                {% if form.reviewed_by.errors %}
+                <div class="invalid-feedback d-block">
+                    {% for error in form.reviewed_by.errors %}
+                    {{ error }}
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label for="{{ form.interpretation.id_for_label }}" class="form-label">Interpretation</label>
+            {{ form.interpretation }}
+            {% if form.interpretation.errors %}
+            <div class="invalid-feedback d-block">
+                {% for error in form.interpretation.errors %}
+                {{ error }}
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-save"></i> Save Results
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const resultDateField = document.getElementById('{{ form.result_date.id_for_label }}');
+        if (resultDateField) {
+            resultDateField.type = 'datetime-local';
+            if (!resultDateField.value) {
+                const now = new Date();
+                const tzOffset = now.getTimezoneOffset() * 60000;
+                const localTime = (new Date(now - tzOffset)).toISOString().slice(0, 16);
+                resultDateField.value = localTime;
+            }
+        }
+
+        const labTestField = document.getElementById('{{ form.lab_test.id_for_label }}');
+        if (labTestField) {
+            labTestField.disabled = true;
+        }
+
+        const reviewedByField = document.getElementById('{{ form.reviewed_by.id_for_label }}');
+        if (reviewedByField && !reviewedByField.value) {
+            reviewedByField.value = '{{ request.user.id }}';
+        }
+    });
+</script>
+{% endblock %}

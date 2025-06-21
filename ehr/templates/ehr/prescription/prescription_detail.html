@@ -1,0 +1,309 @@
+{% extends 'ehr/base.html' %}
+
+{% block title %}Prescription Details{% endblock %}
+
+{% block content %}
+<style>
+    :root {
+        --bg-primary: #0b1120;
+        --bg-secondary: #0b1120;
+        --accent-color: #2ec8a6;
+        --text-primary: #f8fafc;
+        --text-secondary: #94a3b8;
+        --border-color: #1e293b;
+        --success-color: #2ec8a6;
+        --inactive-color: #64748b;
+        --danger-color: #ff6b6b;
+    }
+
+    .prescription-container {
+        background-color: var(--bg-secondary);
+        padding: 2rem;
+        min-height: 100vh;
+    }
+
+    .prescription-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .prescription-title {
+        font-size: 1.75rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin: 0;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 0.75rem;
+    }
+
+    .btn {
+        padding: 0.75rem 1.25rem;
+        border-radius: 8px;
+        font-weight: 500;
+        font-size: 0.9rem;
+        transition: all 0.2s ease;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-outline {
+        background-color: transparent;
+        border: 1px solid var(--accent-color);
+        color: var(--accent-color);
+    }
+
+    .btn-outline:hover {
+        background-color: rgba(46, 200, 166, 0.1);
+    }
+
+    .btn-danger {
+        background-color: transparent;
+        border: 1px solid var(--danger-color);
+        color: var(--danger-color);
+    }
+
+    .btn-danger:hover {
+        background-color: rgba(255, 107, 107, 0.1);
+    }
+
+    .btn-primary {
+        background-color: var(--accent-color);
+        border: none;
+        color: var(--bg-primary);
+    }
+
+    .btn-primary:hover {
+        background-color: #25a38a;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .prescription-card {
+        background-color: var(--bg-primary);
+        border-radius: 12px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        border: 1px solid var(--border-color);
+        overflow: hidden;
+    }
+
+    .prescription-card-header {
+        padding: 1.5rem;
+        border-bottom: 1px solid var(--border-color);
+        background-color: var(--bg-secondary);
+    }
+
+    .medication-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin: 0;
+    }
+
+    .prescription-card-body {
+        padding: 1.5rem;
+    }
+
+    .detail-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .detail-item {
+        margin-bottom: 0.75rem;
+    }
+
+    .detail-label {
+        font-size: 0.9rem;
+        font-weight: 500;
+        color: var(--text-secondary);
+        margin-bottom: 0.25rem;
+    }
+
+    .detail-value {
+        font-size: 1rem;
+        color: var(--text-primary);
+    }
+
+    .badge {
+        display: inline-block;
+        padding: 0.35rem 0.65rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        line-height: 1;
+        text-align: center;
+        white-space: nowrap;
+        vertical-align: baseline;
+        border-radius: 10rem;
+    }
+
+    .badge-active {
+        background-color: rgba(46, 200, 166, 0.1);
+        color: var(--success-color);
+    }
+
+    .badge-inactive {
+        background-color: rgba(100, 116, 139, 0.1);
+        color: var(--inactive-color);
+    }
+
+    .instructions-card {
+        background-color: var(--bg-secondary);
+        border-radius: 8px;
+        padding: 1.5rem;
+        border-left: 4px solid var(--accent-color);
+    }
+
+    .instructions-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 1rem;
+    }
+
+    .instructions-content {
+        color: var(--text-primary);
+        line-height: 1.6;
+    }
+
+    .patient-link {
+        color: var(--accent-color);
+        text-decoration: none;
+        transition: color 0.2s ease;
+    }
+
+    .patient-link:hover {
+        color: #25a38a;
+        text-decoration: underline;
+    }
+
+    @media (max-width: 768px) {
+        .prescription-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+
+        .action-buttons {
+            width: 100%;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            flex: 1;
+            min-width: 120px;
+            justify-content: center;
+        }
+    }
+</style>
+
+<div class="prescription-container">
+    <div class="prescription-header">
+        <h1 class="prescription-title">Prescription Details</h1>
+        <div class="action-buttons">
+            {% if request.user.role in 'ADMIN DOCTOR' %}
+            <a href="{% url 'prescription_update' prescription.pk %}" class="btn btn-outline">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                </svg>
+                Edit
+            </a>
+            <a href="{% url 'prescription_delete' prescription.pk %}" class="btn btn-danger">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="3 6 5 6 21 6"></polyline>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                </svg>
+                Delete
+            </a>
+            {% endif %}
+            <a href="{% url 'prescription_list' %}" class="btn btn-primary">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="19" y1="12" x2="5" y2="12"></line>
+                    <polyline points="12 19 5 12 12 5"></polyline>
+                </svg>
+                Back to List
+            </a>
+        </div>
+    </div>
+
+    <div class="prescription-card">
+        <div class="prescription-card-header">
+            <h2 class="medication-title">{{ prescription.medication }}</h2>
+        </div>
+        <div class="prescription-card-body">
+            <div class="detail-grid">
+                <div>
+                    <div class="detail-item">
+                        <div class="detail-label">Patient</div>
+                        <div class="detail-value">
+                            <a href="{% url 'patient_detail' prescription.patient.pk %}" class="patient-link">
+                                {{ prescription.patient.first_name }} {{ prescription.patient.last_name }}
+                            </a>
+                        </div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Prescriber</div>
+                        <div class="detail-value">{{ prescription.prescriber.get_full_name }}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Status</div>
+                        <div class="detail-value">
+                            <span class="badge badge-{% if prescription.is_active %}active{% else %}inactive{% endif %}">
+                                {% if prescription.is_active %}Active{% else %}Inactive{% endif %}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Start Date</div>
+                        <div class="detail-value">{{ prescription.start_date|date:"M d, Y" }}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">End Date</div>
+                        <div class="detail-value">{{ prescription.end_date|date:"M d, Y"|default:"Not specified" }}</div>
+                    </div>
+                </div>
+                <div>
+                    <div class="detail-item">
+                        <div class="detail-label">Dosage</div>
+                        <div class="detail-value">{{ prescription.dosage }}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Frequency</div>
+                        <div class="detail-value">{{ prescription.get_frequency_display }}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Refills</div>
+                        <div class="detail-value">{{ prescription.refills }}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Created</div>
+                        <div class="detail-value">{{ prescription.created_at|date:"M d, Y H:i" }}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Last Updated</div>
+                        <div class="detail-value">{{ prescription.updated_at|date:"M d, Y H:i" }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="instructions-card">
+                <h3 class="instructions-title">Instructions</h3>
+                <div class="instructions-content">
+                    {{ prescription.instructions|linebreaks|default:"No instructions provided." }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

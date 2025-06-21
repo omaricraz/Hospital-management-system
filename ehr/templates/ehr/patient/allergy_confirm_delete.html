@@ -1,0 +1,200 @@
+{% extends 'ehr/base.html' %}
+
+{% block title %}Delete Allergy{% endblock %}
+
+{% block content %}
+<style>
+    :root {
+        --bg-primary: #0b1120;
+        --bg-secondary: #0b1120;
+        --accent-color: #2ec8a6;
+        --danger-color: #ff6b6b;
+        --text-primary: #f8fafc;
+        --text-secondary: #94a3b8;
+        --border-color: #1e293b;
+    }
+
+    .delete-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        /* min-height: 100vh;
+        background-color: var(--bg-secondary); */
+        padding: 2rem;
+    }
+
+    .delete-confirmation {
+        width: 100%;
+        max-width: 500px;
+        background-color: var(--bg-primary);
+        border-radius: 16px;
+        padding: 2.5rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        border: 1px solid var(--danger-color);
+        animation: fadeInUp 0.4s ease-out forwards;
+    }
+
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .confirmation-header {
+        text-align: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .warning-icon {
+        width: 72px;
+        height: 72px;
+        margin: 0 auto 1.5rem;
+        background-color: rgba(255, 107, 107, 0.1);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 2px solid var(--danger-color);
+    }
+
+    .warning-icon svg {
+        width: 32px;
+        height: 32px;
+        stroke: var(--danger-color);
+        stroke-width: 1.5;
+    }
+
+    .confirmation-title {
+        font-size: 1.6rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 0.75rem;
+    }
+
+    .patient-info {
+        background-color: rgba(46, 200, 166, 0.1);
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        border-left: 3px solid var(--accent-color);
+    }
+
+    .allergy-info {
+        background-color: rgba(255, 107, 107, 0.1);
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+        border-left: 3px solid var(--danger-color);
+    }
+
+    .confirmation-message {
+        font-size: 0.95rem;
+        color: var(--text-secondary);
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .confirmation-actions {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+    }
+
+    .btn {
+        padding: 0.9rem 1.5rem;
+        border-radius: 10px;
+        font-weight: 500;
+        font-size: 0.95rem;
+        transition: all 0.25s ease;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    .btn-danger {
+        background-color: var(--danger-color);
+        border: none;
+        color: var(--text-primary);
+        box-shadow: 0 4px 6px rgba(255, 107, 107, 0.2);
+    }
+
+    .btn-danger:hover {
+        background-color: #ff4757;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 8px rgba(255, 107, 107, 0.3);
+    }
+
+    .btn-outline {
+        background-color: transparent;
+        border: 1px solid var(--text-secondary);
+        color: var(--text-secondary);
+    }
+
+    .btn-outline:hover {
+        border-color: var(--text-primary);
+        color: var(--text-primary);
+    }
+
+    @media (max-width: 480px) {
+        .delete-container { padding: 1.25rem; }
+        .delete-confirmation { padding: 2rem 1.5rem; }
+        .confirmation-actions { flex-direction: column; }
+        .btn { width: 100%; }
+    }
+</style>
+
+<div class="delete-container">
+    <div class="delete-confirmation">
+        <div class="confirmation-header">
+            <div class="warning-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                    <line x1="12" y1="9" x2="12" y2="13"></line>
+                    <line x1="12" y1="17" x2="12" y2="17"></line>
+                </svg>
+            </div>
+            <h2 class="confirmation-title">Delete Allergy Record</h2>
+        </div>
+
+        <div class="patient-info">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+            <strong>Patient:</strong> {{ object.patient.first_name }} {{ object.patient.last_name }}
+        </div>
+
+        <div class="allergy-info">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 14.66V20a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h5.34"></path>
+                <polygon points="18 2 22 6 12 16 8 16 8 12 18 2"></polygon>
+            </svg>
+            <strong>Allergen:</strong> {{ object.allergen }}
+            {% if object.reaction %}
+                <br><strong>Reaction:</strong> {{ object.reaction }}
+            {% endif %}
+        </div>
+
+        <p class="confirmation-message">
+            This will permanently remove this allergy from the patient's record.
+        </p>
+
+        <form method="post">
+            {% csrf_token %}
+            <div class="confirmation-actions">
+                <a href="{% url 'patient_detail' object.patient.pk %}" class="btn btn-outline">
+                    Cancel
+                </a>
+                <button type="submit" class="btn btn-danger">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="3 6 5 6 21 6"></polyline>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                    </svg>
+                    Delete Allergy
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

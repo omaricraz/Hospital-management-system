@@ -1,0 +1,335 @@
+{% extends 'ehr/base.html' %}
+
+{% block title %}{% if form.instance.pk %}Edit{% else %}Create{% endif %} Alert{% endblock %}
+
+{% block content %}
+<style>
+    :root {
+        --bg-primary: #0b1120;
+        --bg-secondary: #0b1120;
+        --accent-color: #2ec8a6;
+        --text-primary: #f8fafc;
+        --text-secondary: #94a3b8;
+        --error-color: #ff6b6b;
+        --border-color: #1e293b;
+    }
+
+    .alert-form {
+        max-width: 700px;
+        margin: 2rem auto;
+        padding: 2rem;
+        background-color: var(--bg-primary);
+        border-radius: 16px;
+    }
+
+    .form-header {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .alert-icon {
+        width: 48px;
+        height: 48px;
+        background-color: rgba(46, 200, 166, 0.1);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1rem;
+    }
+
+    .alert-icon svg {
+        width: 24px;
+        height: 24px;
+        stroke: var(--accent-color);
+    }
+
+    .form-title {
+        font-size: 1.4rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin: 0;
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.25rem;
+        margin-bottom: 1.25rem;
+    }
+
+    .form-group {
+        margin-bottom: 0;
+    }
+
+    .form-group.full-width {
+        grid-column: span 2;
+    }
+
+    label.form-label {
+        display: block;
+        font-size: 0.85rem;
+        font-weight: 500;
+        color: var(--text-secondary);
+        margin-bottom: 0.5rem;
+        letter-spacing: 0.5px;
+    }
+
+    input, select, textarea {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        background-color: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        color: var(--text-primary);
+        font-size: 0.9rem;
+        transition: all 0.2s ease;
+    }
+
+    textarea {
+        min-height: 100px;
+        resize: vertical;
+    }
+
+    input:focus, select:focus, textarea:focus {
+        border-color: var(--accent-color);
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(46, 200, 166, 0.2);
+    }
+
+    .checkbox-group {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-top: 1.5rem;
+    }
+
+    .checkbox-group input {
+        width: auto;
+        accent-color: var(--accent-color);
+    }
+
+    .checkbox-group label {
+        margin: 0;
+        font-size: 0.9rem;
+    }
+
+    .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.75rem;
+        margin-top: 1.5rem;
+    }
+
+    .btn {
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 500;
+        font-size: 0.9rem;
+        transition: all 0.2s ease;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-primary {
+        background-color: var(--accent-color);
+        border: none;
+        color: var(--bg-primary);
+    }
+
+    .btn-primary:hover {
+        background-color: #25a38a;
+        transform: translateY(-1px);
+    }
+
+    .btn-outline {
+        background-color: transparent;
+        border: 1px solid var(--text-secondary);
+        color: var(--text-secondary);
+    }
+
+    .btn-outline:hover {
+        border-color: var(--accent-color);
+        color: var(--accent-color);
+    }
+
+    .alert-message {
+        padding: 0.75rem 1rem;
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+        font-size: 0.9rem;
+        background-color: rgba(255, 107, 107, 0.1);
+        border: 1px solid rgba(255, 107, 107, 0.3);
+        color: var(--error-color);
+    }
+
+    .invalid-feedback {
+        font-size: 0.8rem;
+        color: var(--error-color);
+        margin-top: 0.25rem;
+    }
+
+    .is-invalid {
+        border-color: var(--error-color);
+    }
+
+    .form-text {
+        font-size: 0.75rem;
+        color: var(--text-secondary);
+        margin-top: 0.25rem;
+    }
+
+    @media (max-width: 640px) {
+        .alert-form {
+            padding: 1.5rem;
+            margin: 1rem;
+        }
+
+        .form-grid {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        .form-group.full-width {
+            grid-column: span 1;
+        }
+
+        .form-actions {
+            flex-direction: column;
+        }
+
+        .btn {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+
+<div class="alert-form">
+    <div class="form-header">
+        <div class="alert-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <line x1="12" y1="16" x2="12" y2="16"></line>
+            </svg>
+        </div>
+        <h2 class="form-title">{% if form.instance.pk %}Edit{% else %}Create{% endif %} Alert</h2>
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+        
+        {% if form.non_field_errors %}
+        <div class="alert-message">
+            {% for error in form.non_field_errors %}
+            {{ error }}
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="form-grid">
+            <div class="form-group">
+                <label for="{{ form.title.id_for_label }}" class="form-label">{{ form.title.label }}</label>
+                <input type="text" class="{% if form.title.errors %}is-invalid{% endif %}" 
+                       id="{{ form.title.id_for_label }}" name="{{ form.title.name }}" 
+                       value="{{ form.title.value|default:'' }}">
+                {% for error in form.title.errors %}
+                <div class="invalid-feedback">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.priority.id_for_label }}" class="form-label">{{ form.priority.label }}</label>
+                <select class="{% if form.priority.errors %}is-invalid{% endif %}" 
+                        id="{{ form.priority.id_for_label }}" name="{{ form.priority.name }}">
+                    {% for value, label in form.fields.priority.choices %}
+                    <option value="{{ value }}" {% if form.priority.value == value %}selected{% endif %}>
+                        {{ label }}
+                    </option>
+                    {% endfor %}
+                </select>
+                {% for error in form.priority.errors %}
+                <div class="invalid-feedback">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.start_date.id_for_label }}" class="form-label">{{ form.start_date.label }}</label>
+                <input type="datetime-local" class="{% if form.start_date.errors %}is-invalid{% endif %}" 
+                       id="{{ form.start_date.id_for_label }}" name="{{ form.start_date.name }}" 
+                       value="{{ form.start_date.value|date:'Y-m-d\TH:i'|default:'' }}">
+                {% for error in form.start_date.errors %}
+                <div class="invalid-feedback">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.end_date.id_for_label }}" class="form-label">{{ form.end_date.label }}</label>
+                <input type="datetime-local" class="{% if form.end_date.errors %}is-invalid{% endif %}" 
+                       id="{{ form.end_date.id_for_label }}" name="{{ form.end_date.name }}" 
+                       value="{{ form.end_date.value|date:'Y-m-d\TH:i'|default:'' }}">
+                {% for error in form.end_date.errors %}
+                <div class="invalid-feedback">{{ error }}</div>
+                {% endfor %}
+                <div class="form-text">Leave blank if no end date is needed</div>
+            </div>
+
+            <div class="form-group full-width">
+                <label for="{{ form.message.id_for_label }}" class="form-label">{{ form.message.label }}</label>
+                <textarea class="{% if form.message.errors %}is-invalid{% endif %}" 
+                          id="{{ form.message.id_for_label }}" name="{{ form.message.name }}" 
+                          rows="3">{{ form.message.value|default:'' }}</textarea>
+                {% for error in form.message.errors %}
+                <div class="invalid-feedback">{{ error }}</div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="checkbox-group">
+            <input type="checkbox" id="{{ form.is_active.id_for_label }}" name="{{ form.is_active.name }}" 
+                   {% if form.is_active.value %}checked{% endif %}>
+            <label for="{{ form.is_active.id_for_label }}">{{ form.is_active.label }}</label>
+        </div>
+
+        <div class="form-actions">
+            <a href="{% if form.instance.pk %}{% url 'alert_detail' form.instance.pk %}{% else %}{% url 'alert_list' %}{% endif %}" 
+               class="btn btn-outline">
+                Cancel
+            </a>
+            <button type="submit" class="btn btn-primary">
+                Save Alert
+            </button>
+        </div>
+    </form>
+</div>
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Set default start date to now if creating new alert
+    {% if not form.instance.pk %}
+    const now = new Date();
+    const timezoneOffset = now.getTimezoneOffset() * 60000;
+    const localISOTime = (new Date(now - timezoneOffset)).toISOString().slice(0, 16);
+    document.getElementById('{{ form.start_date.id_for_label }}').value = localISOTime;
+    {% endif %}
+    
+    // Add subtle animation to form on load
+    const form = document.querySelector('.alert-form');
+    form.style.opacity = '0';
+    form.style.transform = 'translateY(10px)';
+    form.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+    
+    setTimeout(() => {
+        form.style.opacity = '1';
+        form.style.transform = 'translateY(0)';
+    }, 50);
+});
+</script>
+{% endblock %}
+{% endblock %}

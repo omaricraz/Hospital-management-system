@@ -1,0 +1,335 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EHR Management System</title>
+    <script src="https://kit.fontawesome.com/c1df782baf.js"></script>
+    <link rel='stylesheet' href='https://cdn-uicons.flaticon.com/2.1.0/uicons-thin-rounded/css/uicons-thin-rounded.css'>
+    <link rel='stylesheet' href='https://cdn-uicons.flaticon.com/2.1.0/uicons-regular-rounded/css/uicons-regular-rounded.css'>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body> 
+
+    <header>
+        <div class="logo"><img src="{% static 'images/ehr-logo.png' %}" alt="EHR Logo"></div>
+        <nav class="navbar">
+            <a href="#home">Home</a>
+            <a href="#features">Features</a>
+            <a href="#modules">Modules</a>
+            <a href="#testimonials">Testimonials</a>
+            <a href="#contact">Contact</a>
+        </nav>
+        <div class="right-icons">
+            <div id="menu-bars" class="fas fa-bars"></div>
+            <a href="{% url 'login' %}" class="btn">Login</a>
+        </div>
+    </header>
+
+    <!-- Home Section -->
+    <div class="main-home" id="home">
+        <div class="home">
+            <div class="home-left-content">
+                <span>Welcome to EHR Management</span>
+                <h2>Streamline Your Healthcare<br>Operations</h2>
+                <p class="lorem">Our comprehensive Electronic Health Records system helps healthcare providers deliver better patient care through efficient data management and seamless workflows.</p>
+                <div class="home-btn">
+                    <a href="#features">Learn More</a>
+                    <a class="homebtnsec" href="#contact">Get Started</a>
+                </div>
+            </div>
+            <div class="home-right-content">
+                <img src="{% static 'images/hero1.png' %}" alt="EHR System Illustration">
+            </div>
+        </div>
+    </div>
+
+    <!-- Technology Section -->
+    <div class="technology">
+        <div class="main-technology">
+            <div class="inner-technology">
+                <span></span>
+                <i class="fi fi-tr-hands-heart"></i>
+                <h2>Patient-Centered</h2>
+                <p>Our EHR system puts patients at the center with accessible health records and better care coordination.</p>
+            </div>
+            <div class="inner-technology">
+                <span></span>
+                <i class="fi fi-rr-doctor"></i>
+                <h2>Clinician-Friendly</h2>
+                <p>Designed by healthcare professionals for healthcare professionals with intuitive workflows.</p>
+            </div>
+            <div class="inner-technology">
+                <span></span>
+                <i class="fi fi-tr-user-md"></i>
+                <h2>Secure & Compliant</h2>
+                <p>HIPAA-compliant with robust security measures to protect sensitive health information.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Features Section -->
+    <div class="main-features" id="features">
+        <div class="features-heading">
+            <h2>Key Features</h2>
+            <p>Comprehensive tools designed to streamline healthcare operations</p>
+        </div>
+        <div class="main-inner-features">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-user-md"></i>
+                </div>
+                <h3>Patient Records</h3>
+                <p>Comprehensive patient history, medications, allergies, and treatment plans in one secure location.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-calendar-check"></i>
+                </div>
+                <h3>Appointment Scheduling</h3>
+                <p>Efficient scheduling system with automated reminders to reduce no-shows and optimize provider time.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-prescription-bottle-alt"></i>
+                </div>
+                <h3>e-Prescribing</h3>
+                <p>Electronic prescriptions sent directly to pharmacies with built-in drug interaction checks.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-flask"></i>
+                </div>
+                <h3>Lab Integration</h3>
+                <p>Seamless integration with laboratory systems for quick results delivery and tracking.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-file-invoice-dollar"></i>
+                </div>
+                <h3>Billing System</h3>
+                <p>Integrated medical billing with insurance verification and claims management.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-chart-bar"></i>
+                </div>
+                <h3>Reporting & Analytics</h3>
+                <p>Customizable reports and dashboards for performance tracking and quality improvement.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modules Section -->
+    <div class="main-about" id="modules">
+        <div class="about-heading">Our Modules</div>
+        <div class="inner-main-about">
+            <div class="about-inner-content-left">
+                <img src="{% static 'images/ehr-dashboard.png' %}" alt="EHR Dashboard">
+            </div>
+            <div class="about-inner-content">
+                <div class="about-right-content">
+                    <h2>Comprehensive EHR Solution for All Healthcare Needs</h2>
+                    <p>Our modular EHR system is designed to adapt to your specific practice requirements while maintaining interoperability across all components.</p>
+                    <p class="aboutsec-content">
+                        From small clinics to large hospital systems, our EHR modules provide the tools you need for patient management, clinical documentation, revenue cycle management, and population health analytics - all in one integrated platform.
+                    </p>
+                    <button class="aboutbtn">View All Modules</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Testimonials Section -->
+    <div class="main-review" id="testimonials">
+        <section>  
+            <div class="review-heading">
+                <h1>What Our Clients Say</h1>
+            </div>
+            <div class="main-inner-review">
+                <div class="review-inner-content">
+                    <div class="review-box">
+                        <img src="{% static 'images/doctor1.jpg' %}" alt="Client 1">
+                        <h2>Dr. Sarah Johnson</h2>
+                        <div class="review-stars">
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                        </div>
+                        <div class="review-text">
+                            <p>"Implementing this EHR system transformed our practice. Documentation time decreased by 40% while our quality metrics improved significantly."</p>
+                        </div>
+                    </div>
+
+                    <div class="review-box">
+                        <img src="{% static 'images/admin1.jpg' %}" alt="Client 2">
+                        <h2>Michael Rodriguez</h2>
+                        <div class="review-stars">
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-regular fa-star"></i>
+                        </div>
+                        <div class="review-text">
+                            <p>"As a hospital administrator, the reporting and analytics capabilities have given us unprecedented visibility into our operations and patient outcomes."</p>
+                        </div>
+                    </div>
+
+                    <div class="review-box">
+                        <img src="{% static 'images/nurse1.jpg' %}" alt="Client 3">
+                        <h2>Nurse Emily Chen</h2>
+                        <div class="review-stars">
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star-half-stroke"></i>
+                        </div>
+                        <div class="review-text">
+                            <p>"The intuitive interface makes it easy to document care while maintaining focus on the patient. Medication reconciliation is now seamless."</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+<!-- Contact Section -->
+<div class="contact-section" id="contact">
+    <div class="contact-heading">
+        <h2>Get In Touch</h2>
+        <p>Have questions? Reach out to our team for more information</p>
+    </div>
+    <div class="contact-container">
+        <div class="contact-info">
+            <div class="contact-box">
+                <div class="contact-icon">
+                    <i class="fas fa-phone-alt"></i>
+                </div>
+                <div class="contact-text">
+                    <h3>Phone</h3>
+                    <p>1-800-EHR-HELP</p>
+                    <p>Mon-Fri, 8am-6pm EST</p>
+                </div>
+            </div>
+            <div class="contact-box">
+                <div class="contact-icon">
+                    <i class="fas fa-envelope"></i>
+                </div>
+                <div class="contact-text">
+                    <h3>Email</h3>
+                    <p>support@ehrexample.com</p>
+                    <p>Response within 24 hours</p>
+                </div>
+            </div>
+            <div class="contact-box">
+                <div class="contact-icon">
+                    <i class="fas fa-map-marker-alt"></i>
+                </div>
+                <div class="contact-text">
+                    <h3>Headquarters</h3>
+                    <p>123 Healthcare Blvd</p>
+                    <p>Boston, MA 02115</p>
+                </div>
+            </div>
+        </div>
+        <div class="contact-form">
+            <form method="POST" action="{% url 'contact' %}">
+                {% csrf_token %}
+                
+                <div class="form-group">
+                    <input type="text" name="name" placeholder="Your Name" required>
+                </div>
+                <div class="form-group">
+                    <input type="email" name="email" placeholder="Your Email" required>
+                </div>
+                <div class="form-group">
+                    <input type="text" name="subject" placeholder="Subject">
+                </div>
+                <div class="form-group">
+                    <textarea name="message" placeholder="Your Message" rows="5" required></textarea>
+                </div>
+                <button type="submit" class="submit-btn">
+                    <i class="fas fa-paper-plane"></i> Send Message
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+    <!-- Footer -->
+    <div class="main-footer">
+        <div class="footer-inner">
+            <div class="footer-content">
+                <h1>Quick Links</h1>
+                <div class="link">
+                    <a href="#home">Home</a>
+                    <a href="#features">Features</a>
+                    <a href="#modules">Modules</a>
+                    <a href="#testimonials">Testimonials</a>
+                    <a href="#contact">Contact</a>
+                </div>
+            </div>
+
+            <div class="footer-content">
+                <h1>Resources</h1>
+                <div class="link">
+                    <a href="#">Documentation</a>
+                    <a href="#">Training Videos</a>
+                    <a href="#">Webinars</a>
+                    <a href="#">Blog</a>
+                    <a href="#">FAQ</a>
+                </div>
+            </div>
+
+            <div class="footer-content">
+                <h1>Legal</h1>
+                <div class="link">
+                    <a href="#">Privacy Policy</a>
+                    <a href="#">Terms of Service</a>
+                    <a href="#">HIPAA Compliance</a>
+                    <a href="#">Security</a>
+                    <a href="#">GDPR</a>
+                </div>
+            </div>
+
+            <div class="footer-content">
+                <h1>Company</h1>
+                <div class="link">
+                    <a href="#">About Us</a>
+                    <a href="#">Careers</a>
+                    <a href="#">Partners</a>
+                    <a href="#">News</a>
+                    <a href="#">Contact</a>
+                </div>
+            </div>
+
+            <div class="footer-content">
+                <h1>Connect</h1>
+                <div class="link">
+                    <a href="#"><i class="fa-brands fa-linkedin"></i> LinkedIn</a>
+                    <a href="#"><i class="fa-brands fa-twitter"></i> Twitter</a>
+                    <a href="#"><i class="fa-brands fa-facebook"></i> Facebook</a>
+                    <a href="#"><i class="fa-brands fa-youtube"></i> YouTube</a>
+                    <a href="#"><i class="fa-brands fa-instagram"></i> Instagram</a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; {% now "Y" %} EHR Management System. All Rights Reserved.</p>
+        </div>
+    </div>
+
+    <script src="{% static 'js/script.js' %}"></script>
+</body>
+</html>

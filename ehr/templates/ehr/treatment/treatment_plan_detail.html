@@ -1,0 +1,409 @@
+{% extends 'ehr/base.html' %}
+
+{% block title %}Treatment Plan Details{% endblock %}
+
+{% block content %}
+<style>
+    :root {
+        --bg-primary: #0b1120;
+        --bg-secondary: #0b1120;
+        --accent-color: #2ec8a6;
+        --text-primary: #f8fafc;
+        --text-secondary: #94a3b8;
+        --border-color: #1e293b;
+        --success-color: #2ec8a6;
+        --inactive-color: #64748b;
+        --danger-color: #ff6b6b;
+        --info-color: #3b82f6;
+    }
+
+    .treatment-plan-container {
+        background-color: var(--bg-secondary);
+        padding: 2rem;
+        min-height: 100vh;
+    }
+
+    .treatment-plan-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .treatment-plan-title {
+        font-size: 1.75rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin: 0;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 0.75rem;
+    }
+
+    .btn {
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        font-weight: 500;
+        font-size: 0.85rem;
+        transition: all 0.2s ease;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-outline {
+        background-color: transparent;
+        border: 1px solid var(--accent-color);
+        color: var(--accent-color);
+    }
+
+    .btn-outline:hover {
+        background-color: rgba(46, 200, 166, 0.1);
+    }
+
+    .btn-primary {
+        background-color: var(--accent-color);
+        border: none;
+        color: var(--bg-primary);
+    }
+
+    .btn-primary:hover {
+        background-color: #25a38a;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .btn-danger {
+        background-color: transparent;
+        border: 1px solid var(--danger-color);
+        color: var(--danger-color);
+    }
+
+    .btn-danger:hover {
+        background-color: rgba(255, 107, 107, 0.1);
+    }
+
+    .treatment-plan-card {
+        background-color: var(--bg-primary);
+        border-radius: 12px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        border: 1px solid var(--border-color);
+    }
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .info-item {
+        margin-bottom: 0;
+    }
+
+    .info-label {
+        font-size: 0.85rem;
+        font-weight: 500;
+        color: var(--text-secondary);
+        margin-bottom: 0.25rem;
+    }
+
+    .info-value {
+        font-size: 1rem;
+        color: var(--text-primary);
+    }
+
+    .patient-link {
+        color: var(--accent-color);
+        text-decoration: none;
+        transition: color 0.2s ease;
+    }
+
+    .patient-link:hover {
+        color: #25a38a;
+    }
+
+    .badge {
+        display: inline-block;
+        padding: 0.35rem 0.65rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        line-height: 1;
+        text-align: center;
+        white-space: nowrap;
+        vertical-align: baseline;
+        border-radius: 10rem;
+    }
+
+    .badge-active {
+        background-color: rgba(46, 200, 166, 0.1);
+        color: var(--success-color);
+    }
+
+    .badge-inactive {
+        background-color: rgba(100, 116, 139, 0.1);
+        color: var(--inactive-color);
+    }
+
+    .section-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 1rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .content-box {
+        background-color: var(--bg-secondary);
+        border-radius: 8px;
+        padding: 1.25rem;
+        margin-bottom: 1.5rem;
+        border-left: 3px solid var(--accent-color);
+    }
+
+    .progress-notes-container {
+        margin-top: 2rem;
+    }
+
+    .progress-note {
+        background-color: var(--bg-primary);
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        border: 1px solid var(--border-color);
+        transition: all 0.2s ease;
+    }
+
+    .progress-note:hover {
+        border-color: var(--accent-color);
+    }
+
+    .note-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+
+    .note-author {
+        font-weight: 500;
+        color: var(--text-primary);
+    }
+
+    .note-date {
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+    }
+
+    .soap-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .soap-section {
+        margin-bottom: 0;
+    }
+
+    .soap-label {
+        font-size: 0.85rem;
+        font-weight: 500;
+        color: var(--text-secondary);
+        margin-bottom: 0.5rem;
+    }
+
+    .soap-content {
+        background-color: var(--bg-secondary);
+        border-radius: 6px;
+        padding: 1rem;
+        min-height: 100px;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 2rem;
+        color: var(--text-secondary);
+        background-color: var(--bg-primary);
+        border-radius: 8px;
+    }
+
+    @media (max-width: 768px) {
+        .treatment-plan-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+
+        .action-buttons {
+            width: 100%;
+            justify-content: flex-start;
+        }
+
+        .info-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="treatment-plan-container">
+    <div class="treatment-plan-header">
+        <h1 class="treatment-plan-title">Treatment Plan Details</h1>
+        <div class="action-buttons">
+            <a href="{% url 'treatment_plan_list' %}" class="btn btn-outline">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="19" y1="12" x2="5" y2="12"></line>
+                    <polyline points="12 19 5 12 12 5"></polyline>
+                </svg>
+                Back to List
+            </a>
+            {% if request.user.role in 'ADMIN DOCTOR' and request.user == object.provider %}
+            <a href="{% url 'treatment_plan_update' object.pk %}" class="btn btn-outline">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                </svg>
+                Edit Plan
+            </a>
+            <a href="{% url 'treatment_plan_delete' object.pk %}" class="btn btn-danger">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="3 6 5 6 21 6"></polyline>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                </svg>
+                Delete
+            </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="treatment-plan-card">
+        <div class="info-grid">
+            <div class="info-item">
+                <p class="info-label">Patient</p>
+                <p class="info-value">
+                    <a href="{% url 'patient_detail' object.patient.pk %}" class="patient-link">
+                        {{ object.patient.first_name }} {{ object.patient.last_name }}
+                    </a>
+                </p>
+            </div>
+            <div class="info-item">
+                <p class="info-label">Provider</p>
+                <p class="info-value">{{ object.provider.get_full_name }}</p>
+            </div>
+            <div class="info-item">
+                <p class="info-label">Start Date</p>
+                <p class="info-value">{{ object.start_date|date:"M d, Y" }}</p>
+            </div>
+            <div class="info-item">
+                <p class="info-label">End Date</p>
+                <p class="info-value">{{ object.end_date|date:"M d, Y"|default:"Not specified" }}</p>
+            </div>
+            <div class="info-item">
+                <p class="info-label">Status</p>
+                <p class="info-value">
+                    <span class="badge badge-{% if object.is_active %}active{% else %}inactive{% endif %}">
+                        {% if object.is_active %}Active{% else %}Inactive{% endif %}
+                    </span>
+                </p>
+            </div>
+            <div class="info-item">
+                <p class="info-label">Diagnosis</p>
+                <p class="info-value">{{ object.diagnosis }}</p>
+            </div>
+        </div>
+
+        <div>
+            <h6 class="section-title">Treatment Goals</h6>
+            <div class="content-box">
+                {{ object.goals|linebreaks }}
+            </div>
+        </div>
+    </div>
+
+    <div class="progress-notes-container">
+        <div class="section-title">
+            <span>Progress Notes</span>
+            <a href="{% url 'progress_note_create' treatment_plan_id=object.pk %}" class="btn btn-primary">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                Add Note
+            </a>
+        </div>
+
+        {% if object.progress_notes.all %}
+            {% for note in object.progress_notes.all %}
+            <div class="progress-note">
+                <div class="note-header">
+                    <span class="note-author">Note by {{ note.author.get_full_name }}</span>
+                    <span class="note-date">{{ note.note_date|date:"M d, Y H:i" }}</span>
+                </div>
+                
+                <div class="soap-grid">
+                    <div class="soap-section">
+                        <p class="soap-label">Subjective</p>
+                        <div class="soap-content">
+                            {{ note.subjective|default:"-"|linebreaks }}
+                        </div>
+                    </div>
+                    <div class="soap-section">
+                        <p class="soap-label">Objective</p>
+                        <div class="soap-content">
+                            {{ note.objective|default:"-"|linebreaks }}
+                        </div>
+                    </div>
+                    <div class="soap-section">
+                        <p class="soap-label">Assessment</p>
+                        <div class="soap-content">
+                            {{ note.assessment|default:"-"|linebreaks }}
+                        </div>
+                    </div>
+                    <div class="soap-section">
+                        <p class="soap-label">Plan</p>
+                        <div class="soap-content">
+                            {{ note.plan|default:"-"|linebreaks }}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="action-buttons">
+                    <a href="{% url 'progress_note_update' note.pk %}" class="btn btn-outline">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                        </svg>
+                        Edit
+                    </a>
+                    <a href="{% url 'progress_note_delete' note.pk %}" class="btn btn-danger">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="3 6 5 6 21 6"></polyline>
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                        </svg>
+                        Delete
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty-state">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 1rem;">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="12"></line>
+                    <line x1="12" y1="16" x2="12" y2="16"></line>
+                </svg>
+                <p>No progress notes found for this treatment plan.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

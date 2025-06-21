@@ -1,0 +1,314 @@
+{% extends 'ehr/base.html' %}
+
+{% block title %}{% if object %}Edit{% else %}Add{% endif %} Billing Record{% endblock %}
+
+{% block content %}
+<style>
+    :root {
+        --bg-primary: #0b1120;
+        --bg-secondary: #0b1120;
+        --accent-color: #2ec8a6;
+        --text-primary: #f8fafc;
+        --text-secondary: #94a3b8;
+    }
+
+    body {
+        background-color: var(--bg-secondary);
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        color: var(--text-primary);
+    }
+
+    .form-container {
+        max-width: 800px;
+        margin: 0 auto;
+        background-color: var(--bg-primary);
+        padding: 30px;
+        border-radius: 16px;
+    }
+
+    h2 {
+        color: var(--text-primary);
+        margin-bottom: 30px;
+        font-size: 1.8rem;
+    }
+
+    label.form-label {
+        font-weight: 600;
+        color: var(--text-secondary);
+        margin-bottom: 6px;
+    }
+
+    input, select, textarea {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid #3c4451;
+        border-radius: 10px;
+        background-color: var(--bg-secondary);
+        color: var(--text-primary);
+        transition: all 0.3s ease-in-out;
+    }
+
+    input:focus, select:focus, textarea:focus {
+        border-color: var(--accent-color);
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(46, 200, 166, 0.3);
+        background-color: var(--bg-primary);
+    }
+
+    .btn {
+        padding: 12px 24px;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 1rem;
+        margin-right: 10px;
+        cursor: pointer;
+    }
+
+    .btn-primary {
+        background-color: var(--accent-color);
+        border: none;
+        color: var(--text-primary);
+    }
+
+    .btn-primary:hover {
+        background-color: #25a38a;
+    }
+
+    .btn-outline-secondary {
+        border: 1px solid var(--text-secondary);
+        color: var(--text-secondary);
+        background: transparent;
+    }
+
+    .btn-outline-secondary:hover {
+        background-color: #1e293b;
+        color: var(--text-primary);
+    }
+
+    .invalid-feedback {
+        font-size: 0.875rem;
+        color: #ff6b6b;
+        margin-top: 5px;
+    }
+
+    .row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+    }
+
+    .col-md-6 {
+        flex: 1 1 calc(50% - 20px);
+    }
+
+    .col-12 {
+        flex: 1 1 100%;
+    }
+
+    .form-check-label {
+        color: var(--text-secondary);
+    }
+
+    .input-group {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .input-group span {
+        background-color: var(--bg-secondary);
+        color: var(--text-secondary);
+        padding: 10px 14px;
+        border: 1px solid #3c4451;
+        border-radius: 10px;
+    }
+
+    @media (max-width: 768px) {
+        .col-md-6 {
+            flex: 1 1 100%;
+        }
+
+        .d-flex.justify-content-between {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .d-flex.justify-content-between a {
+            margin-top: 15px;
+        }
+    }
+</style>
+
+<div class="form-container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>{% if object %}Edit{% else %}Add{% endif %} Billing Record</h2>
+        <a href="{% if object %}{% url 'billing_record_detail' object.id %}{% else %}{% url 'billing_record_list' %}{% endif %}" class="btn btn-outline-secondary">
+            ← Cancel
+        </a>
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+        <div class="alert alert-danger">
+            {% for error in form.non_field_errors %}
+            {{ error }}
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="row">
+            <div class="col-md-6">
+                <label for="{{ form.patient.id_for_label }}" class="form-label">Patient</label>
+                {{ form.patient }}
+                {% if form.patient.errors %}
+                <div class="invalid-feedback">
+                    {% for error in form.patient.errors %}{{ error }}{% endfor %}
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="col-md-6">
+                <label for="{{ form.appointment.id_for_label }}" class="form-label">Appointment (Optional)</label>
+                {{ form.appointment }}
+                {% if form.appointment.errors %}
+                <div class="invalid-feedback">
+                    {% for error in form.appointment.errors %}{{ error }}{% endfor %}
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="col-md-6">
+                <label for="{{ form.service_date.id_for_label }}" class="form-label">Service Date</label>
+                {{ form.service_date }}
+                {% if form.service_date.errors %}
+                <div class="invalid-feedback">
+                    {% for error in form.service_date.errors %}{{ error }}{% endfor %}
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="col-md-6">
+                <label for="{{ form.service_description.id_for_label }}" class="form-label">Service Description</label>
+                {{ form.service_description }}
+                {% if form.service_description.errors %}
+                <div class="invalid-feedback">
+                    {% for error in form.service_description.errors %}{{ error }}{% endfor %}
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="col-md-6">
+                <span>$</span>
+                <label for="{{ form.amount.id_for_label }}" class="form-label">Amount</label>
+                <div class="input-group">
+                    
+                    {{ form.amount }}
+                </div>
+                {% if form.amount.errors %}
+                <div class="invalid-feedback">
+                    {% for error in form.amount.errors %}{{ error }}{% endfor %}
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="col-md-6">
+                <label for="{{ form.status.id_for_label }}" class="form-label">Status</label>
+                {{ form.status }}
+                {% if form.status.errors %}
+                <div class="invalid-feedback">
+                    {% for error in form.status.errors %}{{ error }}{% endfor %}
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="col-md-6">
+                <div class="form-check form-switch mt-4">
+                    {{ form.insurance_claim }}
+                    <label class="form-check-label" for="{{ form.insurance_claim.id_for_label }}">Insurance Claim</label>
+                </div>
+                {% if form.insurance_claim.errors %}
+                <div class="invalid-feedback">
+                    {% for error in form.insurance_claim.errors %}{{ error }}{% endfor %}
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="col-md-6" id="claim-id-field" style="display: none;">
+                <label for="{{ form.claim_id.id_for_label }}" class="form-label">Claim ID</label>
+                {{ form.claim_id }}
+                {% if form.claim_id.errors %}
+                <div class="invalid-feedback">
+                    {% for error in form.claim_id.errors %}{{ error }}{% endfor %}
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="col-md-6">
+                <label for="{{ form.payment_date.id_for_label }}" class="form-label">Payment Date</label>
+                {{ form.payment_date }}
+                {% if form.payment_date.errors %}
+                <div class="invalid-feedback">
+                    {% for error in form.payment_date.errors %}{{ error }}{% endfor %}
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="col-md-6">
+                <span>$</span>
+                <label for="{{ form.payment_amount.id_for_label }}" class="form-label">Payment Amount</label>
+                <div class="input-group">
+                    
+                    {{ form.payment_amount }}
+                </div>
+                {% if form.payment_amount.errors %}
+                <div class="invalid-feedback">
+                    {% for error in form.payment_amount.errors %}{{ error }}{% endfor %}
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="col-12">
+                <label for="{{ form.notes.id_for_label }}" class="form-label">Notes</label>
+                {{ form.notes }}
+                {% if form.notes.errors %}
+                <div class="invalid-feedback">
+                    {% for error in form.notes.errors %}{{ error }}{% endfor %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="mt-4">
+            <button type="submit" class="btn btn-primary">
+                {% if object %}Update{% else %}Create{% endif %} Billing Record
+            </button>
+        </div>
+    </form>
+</div>
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const insuranceClaimCheckbox = document.getElementById('{{ form.insurance_claim.id_for_label }}');
+    const claimIdField = document.getElementById('claim-id-field');
+
+    function toggleClaimIdField() {
+        claimIdField.style.display = insuranceClaimCheckbox.checked ? 'block' : 'none';
+    }
+
+    if (insuranceClaimCheckbox) {
+        insuranceClaimCheckbox.addEventListener('change', toggleClaimIdField);
+        toggleClaimIdField();
+    }
+
+    const serviceDateInput = document.getElementById('{{ form.service_date.id_for_label }}');
+    const paymentDateInput = document.getElementById('{{ form.payment_date.id_for_label }}');
+
+    if (serviceDateInput) serviceDateInput.type = 'date';
+    if (paymentDateInput) paymentDateInput.type = 'date';
+});
+</script>
+{% endblock %}
+{% endblock %}

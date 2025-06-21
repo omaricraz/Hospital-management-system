@@ -1,0 +1,426 @@
+{% extends 'ehr/base.html' %}
+
+{% block title %}{{ patient.first_name }} {{ patient.last_name }}{% endblock %}
+
+{% block content %}
+<style>
+    :root {
+        --bg-primary: #030817;
+        --bg-secondary: #0b1120;
+        --accent-color: #2ec8a6;
+        --text-primary: #f8fafc;
+        --text-secondary: #94a3b8;
+        --error-color: #ff6b6b;
+        --warning-color: #f59e0b;
+        --info-color: #3b82f6;
+        --success-color: #10b981;
+        --border-color: #1e293b;
+    }
+
+    .patient-detail-container {
+        background-color: var(--bg-secondary);
+        color: var(--text-primary);
+        padding: 2rem;
+        min-height: 100vh;
+    }
+
+    .patient-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .patient-title {
+        font-size: 1.8rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin: 0;
+    }
+
+    .btn-group {
+        display: flex;
+        gap: 0.75rem;
+    }
+
+    .btn {
+        padding: 0.6rem 1rem;
+        border-radius: 8px;
+        font-weight: 500;
+        font-size: 0.9rem;
+        transition: all 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-outline {
+        background-color: transparent;
+        border: 1px solid var(--text-secondary);
+        color: var(--text-secondary);
+    }
+
+    .btn-outline:hover {
+        border-color: var(--accent-color);
+        color: var(--accent-color);
+    }
+
+    .btn-outline-danger {
+        background-color: transparent;
+        border: 1px solid var(--error-color);
+        color: var(--error-color);
+    }
+
+    .btn-outline-danger:hover {
+        background-color: rgba(255, 107, 107, 0.1);
+    }
+
+    .card {
+        background-color: var(--bg-primary);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .card-header {
+        padding: 1rem 1.5rem;
+        background-color: rgba(46, 200, 166, 0.05);
+        border-bottom: 1px solid var(--border-color);
+        border-radius: 12px 12px 0 0 !important;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .card-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin: 0;
+        color: var(--accent-color);
+    }
+
+    .card-body {
+        padding: 1.5rem;
+    }
+
+    .btn-sm {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.8rem;
+    }
+
+    .btn-outline-primary {
+        background-color: transparent;
+        border: 1px solid var(--accent-color);
+        color: var(--accent-color);
+    }
+
+    .btn-outline-primary:hover {
+        background-color: rgba(46, 200, 166, 0.1);
+    }
+
+    dl.row {
+        margin: 0;
+    }
+
+    dt.col-sm-4 {
+        font-weight: 500;
+        color: var(--text-secondary);
+        padding: 0.5rem 0;
+    }
+
+    dd.col-sm-8 {
+        color: var(--text-primary);
+        padding: 0.5rem 0;
+        margin-left: 0;
+    }
+
+    .list-group {
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    .list-group-item {
+        background-color: var(--bg-primary);
+        border: 1px solid var(--border-color);
+        padding: 1rem;
+        transition: background-color 0.2s ease;
+    }
+
+    .list-group-item:hover {
+        background-color: rgba(46, 200, 166, 0.05);
+    }
+
+    .badge {
+        font-size: 0.7rem;
+        font-weight: 500;
+        padding: 0.35rem 0.6rem;
+        border-radius: 6px;
+        margin-right: 0.5rem;
+    }
+
+    .bg-info {
+        background-color: var(--info-color) !important;
+    }
+
+    .bg-warning {
+        background-color: var(--warning-color) !important;
+        color: var(--bg-primary);
+    }
+
+    .bg-success {
+        background-color: var(--success-color) !important;
+    }
+
+    .bg-secondary {
+        background-color: var(--text-secondary) !important;
+    }
+
+    .alert {
+        padding: 0.75rem 1rem;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        background-color: rgba(59, 130, 246, 0.1);
+        border: 1px solid rgba(59, 130, 246, 0.3);
+        color: var(--info-color);
+    }
+
+    @media (max-width: 768px) {
+        .patient-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+
+        .btn-group {
+            width: 100%;
+        }
+
+        .btn {
+            flex: 1;
+            justify-content: center;
+        }
+    }
+</style>
+
+<div class="patient-detail-container">
+    <div class="patient-header">
+        <h1 class="patient-title">{{ patient.first_name }} {{ patient.last_name }}</h1>
+        <div class="btn-group">
+            <a href="{% url 'patient_update' patient.pk %}" class="btn btn-outline">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                </svg>
+                Edit
+            </a>
+            <a href="{% url 'patient_delete' patient.pk %}" class="btn btn-outline-danger">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="3 6 5 6 21 6"></polyline>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                </svg>
+                Delete
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title">Demographic Information</h5>
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-sm-4">Date of Birth</dt>
+                        <dd class="col-sm-8">{{ patient.date_of_birth }}</dd>
+
+                        <dt class="col-sm-4">Gender</dt>
+                        <dd class="col-sm-8">{{ patient.get_gender_display }}</dd>
+
+                        <dt class="col-sm-4">Address</dt>
+                        <dd class="col-sm-8">{{ patient.address }}</dd>
+
+                        <dt class="col-sm-4">Phone</dt>
+                        <dd class="col-sm-8">{{ patient.phone_number }}</dd>
+
+                        <dt class="col-sm-4">Emergency Contact</dt>
+                        <dd class="col-sm-8">{{ patient.emergency_contact }} ({{ patient.emergency_phone }})</dd>
+
+                        <dt class="col-sm-4">Blood Type</dt>
+                        <dd class="col-sm-8">{{ patient.blood_type|default:"Not specified" }}</dd>
+                    </dl>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title">Medical History</h5>
+                    <a href="{% url 'medical_history_create' patient.pk %}" class="btn btn-sm btn-outline-primary">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                        Add
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if patient.medical_histories.all %}
+                        <ul class="list-group">
+                            {% for history in patient.medical_histories.all %}
+                                <li class="list-group-item">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <strong>{{ history.condition }}</strong>
+                                            <small class="d-block text-muted">Diagnosed: {{ history.diagnosis_date }}</small>
+                                            {% if history.is_chronic %}<span class="badge bg-info">Chronic</span>{% endif %}
+                                            {% if history.severity %}<span class="badge bg-warning">{{ history.severity }}</span>{% endif %}
+                                        </div>
+                                        <div class="btn-group btn-group-sm">
+                                            <a href="{% url 'medical_history_update' history.pk %}" class="btn btn-outline" title="Edit">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                                </svg>
+                                            </a>
+                                            <a href="{% url 'medical_history_delete' history.pk %}" class="btn btn-outline-danger" title="Delete">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                    <polyline points="3 6 5 6 21 6"></polyline>
+                                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                                </svg>
+                                            </a>
+                                        </div>
+                                    </div>
+                                    {% if history.notes %}
+                                        <div class="mt-2">
+                                            <small>{{ history.notes }}</small>
+                                        </div>
+                                    {% endif %}
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <div class="alert">No medical history recorded.</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title">Allergies</h5>
+                    <a href="{% url 'allergy_create' patient.pk %}" class="btn btn-sm btn-outline-primary">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                        Add
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if patient.allergies.all %}
+                        <ul class="list-group">
+                            {% for allergy in patient.allergies.all %}
+                                <li class="list-group-item">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <strong>{{ allergy.allergen }}</strong>
+                                            <small class="d-block text-muted">Onset: {{ allergy.onset_date }}</small>
+                                            <span class="badge bg-{{ allergy.get_severity_class }}">{{ allergy.get_severity_display }}</span>
+                                            {% if allergy.is_active %}<span class="badge bg-success">Active</span>{% else %}<span class="badge bg-secondary">Inactive</span>{% endif %}
+                                        </div>
+                                        <div class="btn-group btn-group-sm">
+                                            <a href="{% url 'allergy_update' allergy.pk %}" class="btn btn-outline" title="Edit">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                                </svg>
+                                            </a>
+                                            <a href="{% url 'allergy_delete' allergy.pk %}" class="btn btn-outline-danger" title="Delete">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                    <polyline points="3 6 5 6 21 6"></polyline>
+                                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                                </svg>
+                                            </a>
+                                        </div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <small><strong>Reaction:</strong> {{ allergy.reaction }}</small>
+                                    </div>
+                                    {% if allergy.notes %}
+                                        <div class="mt-1">
+                                            <small><strong>Notes:</strong> {{ allergy.notes }}</small>
+                                        </div>
+                                    {% endif %}
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <div class="alert">No allergies recorded.</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title">Immunizations</h5>
+                    <a href="{% url 'immunization_create' patient.pk %}" class="btn btn-sm btn-outline-primary">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                        Add
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if patient.immunizations.all %}
+                        <ul class="list-group">
+                            {% for immunization in patient.immunizations.all %}
+                                <li class="list-group-item">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <strong>{{ immunization.vaccine }}</strong>
+                                            <small class="d-block text-muted">Administered: {{ immunization.administration_date }}</small>
+                                            {% if immunization.next_dose_date %}<small class="d-block text-muted">Next dose: {{ immunization.next_dose_date }}</small>{% endif %}
+                                        </div>
+                                        <div class="btn-group btn-group-sm">
+                                            <a href="{% url 'immunization_update' immunization.pk %}" class="btn btn-outline" title="Edit">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                                </svg>
+                                            </a>
+                                            <a href="{% url 'immunization_delete' immunization.pk %}" class="btn btn-outline-danger" title="Delete">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                    <polyline points="3 6 5 6 21 6"></polyline>
+                                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                                </svg>
+                                            </a>
+                                        </div>
+                                    </div>
+                                    {% if immunization.notes %}
+                                        <div class="mt-2">
+                                            <small>{{ immunization.notes }}</small>
+                                        </div>
+                                    {% endif %}
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <div class="alert">No immunizations recorded.</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

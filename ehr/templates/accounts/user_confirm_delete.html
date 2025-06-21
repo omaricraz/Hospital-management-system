@@ -1,0 +1,180 @@
+{% extends 'ehr/base.html' %}
+
+{% block title %}Delete User - {{ user.get_full_name }}{% endblock %}
+
+{% block content %}
+<style>
+    :root {
+        --bg-primary: #0b1120;
+        --bg-secondary: #0b1120;
+        --accent-color: #2ec8a6;
+        --danger-color: #ff6b6b;
+        --text-primary: #f8fafc;
+        --text-secondary: #94a3b8;
+        --border-color: #1e293b;
+    }
+
+    .delete-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        /* min-height: 100vh; */
+        background-color: var(--bg-secondary);
+        padding: 2rem;
+    }
+
+    .delete-confirmation {
+        width: 100%;
+        max-width: 420px;
+        background-color: var(--bg-primary);
+        border-radius: 16px;
+        padding: 2rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        border: 1px solid var(--border-color);
+        animation: fadeInUp 0.4s ease-out forwards;
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .confirmation-header {
+        text-align: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .warning-icon {
+        width: 60px;
+        height: 60px;
+        margin: 0 auto 1rem;
+        background-color: rgba(255, 107, 107, 0.1);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .warning-icon svg {
+        width: 30px;
+        height: 30px;
+        stroke: var(--danger-color);
+    }
+
+    .confirmation-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+    }
+
+    .confirmation-message {
+        color: var(--text-primary);
+        margin-bottom: 1rem;
+        text-align: center;
+        line-height: 1.5;
+    }
+
+    .confirmation-warning {
+        color: var(--danger-color);
+        margin-bottom: 1.5rem;
+        text-align: center;
+        font-weight: 500;
+    }
+
+    .confirmation-actions {
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+        margin-top: 1.5rem;
+    }
+
+    .btn {
+        padding: 0.9rem;
+        border-radius: 10px;
+        font-weight: 500;
+        font-size: 0.95rem;
+        transition: all 0.2s ease;
+        cursor: pointer;
+        text-align: center;
+        flex: 1;
+    }
+
+    .btn-danger {
+        background-color: var(--danger-color);
+        border: none;
+        color: var(--text-primary);
+    }
+
+    .btn-danger:hover {
+        background-color: #e05555;
+        transform: translateY(-2px);
+    }
+
+    .btn-secondary {
+        background-color: transparent;
+        border: 1px solid var(--text-secondary);
+        color: var(--text-secondary);
+    }
+
+    .btn-secondary:hover {
+        border-color: var(--accent-color);
+        color: var(--accent-color);
+    }
+
+    .user-name {
+        color: var(--accent-color);
+        font-weight: 600;
+    }
+
+    @media (max-width: 480px) {
+        .delete-container {
+            padding: 1rem;
+        }
+        
+        .delete-confirmation {
+            padding: 1.5rem;
+        }
+        
+        .confirmation-actions {
+            flex-direction: column;
+        }
+        
+        .btn {
+            width: 100%;
+        }
+    }
+</style>
+
+<div class="delete-container">
+    <div class="delete-confirmation">
+        <div class="confirmation-header">
+            <div class="warning-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                    <line x1="12" y1="9" x2="12" y2="13"></line>
+                    <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                </svg>
+            </div>
+            <h3 class="confirmation-title">Confirm Deletion</h3>
+        </div>
+        
+        <p class="confirmation-message">Are you sure you want to delete the user <span class="user-name">{{ user.get_full_name }}</span>?</p>
+        <p class="confirmation-warning">This action cannot be undone.</p>
+        
+        <form method="post">
+            {% csrf_token %}
+            <div class="confirmation-actions">
+                <a href="{% url 'user_detail' user.pk %}" class="btn btn-secondary">Cancel</a>
+                <button type="submit" class="btn btn-danger">Delete User</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

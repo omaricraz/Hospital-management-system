@@ -1,0 +1,495 @@
+{% extends 'ehr/base.html' %}
+
+{% block title %}Lab Tests{% endblock %}
+
+{% block content %}
+<style>
+    :root {
+        --bg-primary: #0b1120;
+        --bg-secondary: #0b1120;
+        --accent-color: #2ec8a6;
+        --text-primary: #f8fafc;
+        --text-secondary: #94a3b8;
+        --border-color: #1e293b;
+        
+        /* Status Colors */
+        --danger-color: #ff6b6b;       /* Cancelled/Error */
+        --warning-color: #ffc107;      /* Pending */
+        --success-color: #8A5BFC;      /* Scheduled */
+        --info-color: #17a2b8;         /* Completed */
+        
+        /* Action Button Colors */
+        --view-color: #2ec8a6;         /* View */
+        --edit-color: #17a2b8;         /* Edit */
+        --delete-color: #ff6b6b;       /* Delete */
+    }
+
+    .lab-tests-container {
+        background-color: var(--bg-secondary);
+        padding: 2rem;
+        min-height: 100vh;
+    }
+
+    .lab-tests-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+    }
+
+    .lab-tests-title {
+        font-size: 1.75rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin: 0;
+    }
+
+    .btn {
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 500;
+        font-size: 0.9rem;
+        transition: all 0.2s ease;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-primary {
+        background-color: var(--accent-color);
+        border: none;
+        color: var(--bg-primary);
+    }
+
+    .btn-primary:hover {
+        background-color: #25a38a;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .dropdown-menu {
+        background-color: var(--bg-primary);
+        border: 1px solid var(--border-color);
+    }
+
+    .dropdown-item {
+        color: var(--text-primary);
+    }
+
+    .dropdown-item:hover {
+        background-color: var(--bg-secondary);
+        color: var(--accent-color);
+    }
+
+    .filters-container {
+        background-color: var(--bg-primary);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .filter-form {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 1rem;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        background-color: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        color: var(--text-primary);
+        font-size: 0.9rem;
+        transition: all 0.2s ease;
+    }
+
+    .form-control:focus {
+        border-color: var(--accent-color);
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(46, 200, 166, 0.2);
+    }
+
+    .lab-tests-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        background-color: var(--bg-primary);
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .lab-tests-table thead th {
+        background-color: var(--bg-secondary);
+        color: var(--text-secondary);
+        font-weight: 600;
+        padding: 1rem;
+        text-align: left;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .lab-tests-table tbody tr {
+        transition: background-color 0.2s ease;
+    }
+
+    .lab-tests-table tbody tr:hover {
+        background-color: rgba(46, 200, 166, 0.05);
+    }
+
+    .lab-tests-table tbody td {
+        padding: 1rem;
+        border-bottom: 1px solid var(--border-color);
+        color: var(--text-primary);
+    }
+
+    /* Status Badges */
+    .badge {
+        display: inline-block;
+        padding: 0.35rem 0.65rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        line-height: 1;
+        text-align: center;
+        white-space: nowrap;
+        vertical-align: baseline;
+        border-radius: 10rem;
+        color: #000; /* Black text for all badges */
+    }
+
+    .badge-scheduled {
+        background-color: var(--success-color);
+    }
+
+    .badge-completed {
+        background-color: var(--info-color);
+    }
+
+    .badge-pending {
+        background-color: var(--warning-color);
+    }
+
+    .badge-cancelled {
+        background-color: var(--danger-color);
+    }
+
+    /* Action Buttons */
+    .action-buttons {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .btn-view {
+        color: var(--view-color);
+        border: 1px solid var(--view-color);
+        background-color: transparent;
+    }
+
+    .btn-view:hover {
+        background-color: rgba(46, 200, 166, 0.1);
+    }
+
+    .btn-edit {
+        color: var(--edit-color);
+        border: 1px solid var(--edit-color);
+        background-color: transparent;
+    }
+
+    .btn-edit:hover {
+        background-color: rgba(23, 162, 184, 0.1);
+    }
+
+    .btn-delete {
+        color: var(--delete-color);
+        border: 1px solid var(--delete-color);
+        background-color: transparent;
+    }
+
+    .btn-delete:hover {
+        background-color: rgba(255, 107, 107, 0.1);
+    }
+
+    .btn-sm {
+        padding: 0.5rem;
+        border-radius: 6px;
+        font-size: 0.8rem;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 2rem;
+        color: var(--text-secondary);
+    }
+
+    .pagination {
+        display: flex;
+        justify-content: center;
+        margin-top: 2rem;
+    }
+
+    .page-item {
+        margin: 0 0.25rem;
+    }
+
+    .page-link {
+        padding: 0.5rem 0.75rem;
+        background-color: var(--bg-primary);
+        border: 1px solid var(--border-color);
+        color: var(--text-primary);
+        border-radius: 6px;
+        transition: all 0.2s ease;
+    }
+
+    .page-link:hover {
+        background-color: var(--bg-secondary);
+        border-color: var(--accent-color);
+    }
+
+    .page-item.active .page-link {
+        background-color: var(--accent-color);
+        border-color: var(--accent-color);
+        color: var(--bg-primary);
+    }
+
+    .page-item.disabled .page-link {
+        color: var(--text-secondary);
+        background-color: var(--bg-primary);
+        border-color: var(--border-color);
+    }
+
+    /* Modal Styles */
+    .modal-content {
+        background-color: var(--bg-primary);
+        color: var(--text-primary);
+        border: 1px solid var(--border-color);
+    }
+
+    .modal-header {
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .modal-footer {
+        border-top: 1px solid var(--border-color);
+    }
+
+    @media (max-width: 768px) {
+        .lab-tests-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+
+        .filter-form {
+            grid-template-columns: 1fr;
+        }
+
+        .lab-tests-table {
+            display: block;
+            overflow-x: auto;
+        }
+    }
+</style>
+
+<div class="lab-tests-container">
+    <div class="lab-tests-header">
+        <h1 class="lab-tests-title">Lab Tests</h1>
+        {% if perms.ehr.add_labtest %}
+        <div class="btn-group">
+            <a href="{% url 'lab_test_create' %}" class="btn btn-primary">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                Add Lab Test
+            </a>
+            <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown">
+                <span class="visually-hidden">Toggle Dropdown</span>
+            </button>
+            <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="{% url 'lab_test_create_for_patient' 0 %}" data-bs-toggle="modal" data-bs-target="#patientModal">For Specific Patient</a></li>
+            </ul>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Patient Selection Modal -->
+    <div class="modal fade" id="patientModal" tabindex="-1" aria-labelledby="patientModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="patientModalLabel">Select Patient</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="patientForm" method="get" action="#">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="patientSelect" class="form-label">Patient</label>
+                            <select class="form-select" id="patientSelect" required>
+                                <option value="" selected disabled>Select a patient</option>
+                                {% for patient in recent_patients %}
+                                <option value="{{ patient.id }}">{{ patient.first_name }} {{ patient.last_name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-primary" onclick="navigateToPatientLabTest()">Continue</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="filters-container">
+        <form method="get" class="filter-form">
+            <div class="form-group">
+                <input type="text" class="form-control" name="search" placeholder="Search tests..." value="{{ request.GET.search }}">
+            </div>
+            <div class="form-group">
+                <button type="submit" class="btn btn-outline">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                    Search
+                </button>
+            </div>
+        </form>
+        <div class="mt-2">
+            <div class="btn-group">
+                <button type="button" class="btn btn-outline dropdown-toggle" data-bs-toggle="dropdown">
+                    Status: {{ status_filter|default:"All" }}
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="?">All Statuses</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    {% for status in status_choices %}
+                    <li><a class="dropdown-item" href="?status={{ status.0 }}">{{ status.1 }}</a></li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="lab-tests-table">
+            <thead>
+                <tr>
+                    <th>Patient</th>
+                    <th>Test Name</th>
+                    <th>Date Ordered</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for lab_test in object_list %}
+                <tr>
+                    <td>
+                        <a href="{% url 'patient_detail' lab_test.patient.pk %}" style="color: var(--accent-color);">
+                            {{ lab_test.patient.first_name }} {{ lab_test.patient.last_name }}
+                        </a>
+                    </td>
+                    <td>{{ lab_test.test_name }}</td>
+                    <td>{{ lab_test.test_date|date:"M d, Y" }}</td>
+                    <td>
+                        <span class="badge badge-{{ lab_test.get_status_display|lower }}">
+                            {{ lab_test.get_status_display }}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="action-buttons">
+                            <a href="{% url 'lab_test_detail' lab_test.pk %}" class="btn btn-sm btn-view" title="View">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                </svg>
+                            </a>
+                            {% if perms.ehr.change_labtest %}
+                            <a href="{% url 'lab_test_update' lab_test.pk %}" class="btn btn-sm btn-edit" title="Edit">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                </svg>
+                            </a>
+                            {% endif %}
+                            {% if perms.ehr.delete_labtest %}
+                            <a href="{% url 'lab_test_delete' lab_test.pk %}" class="btn btn-sm btn-delete" title="Delete">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="3 6 5 6 21 6"></polyline>
+                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                </svg>
+                            </a>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="empty-state">No lab tests found</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% if is_paginated %}
+    <nav aria-label="Page navigation">
+        <ul class="pagination">
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}">
+                    Previous
+                </a>
+            </li>
+            {% else %}
+            <li class="page-item disabled">
+                <span class="page-link">Previous</span>
+            </li>
+            {% endif %}
+            
+            {% for num in page_obj.paginator.page_range %}
+            {% if page_obj.number == num %}
+            <li class="page-item active">
+                <span class="page-link">{{ num }}</span>
+            </li>
+            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ num }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}">
+                    {{ num }}
+                </a>
+            </li>
+            {% endif %}
+            {% endfor %}
+            
+            {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}">
+                    Next
+                </a>
+            </li>
+            {% else %}
+            <li class="page-item disabled">
+                <span class="page-link">Next</span>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+
+{% block extra_js %}
+<script>
+    function navigateToPatientLabTest() {
+        const patientId = document.getElementById('patientSelect').value;
+        if (patientId) {
+            window.location.href = "{% url 'lab_test_create_for_patient' 0 %}".replace('/0/', '/' + patientId + '/');
+        }
+    }
+</script>
+{% endblock %}
+{% endblock %}

@@ -1,0 +1,300 @@
+{% extends 'ehr/base.html' %}
+
+{% block title %}Insurance Policy - {{ insurance_policy.provider_name }}{% endblock %}
+
+{% block content %}
+<style>
+    :root {
+        --bg-primary: #0b1120;
+        --bg-secondary: #0b1120;
+        --accent-color: #2ec8a6;
+        --text-primary: #f8fafc;
+        --text-secondary: #94a3b8;
+        --border-color: #1e293b;
+        --success-color: #2ec8a6;
+        --inactive-color: #64748b;
+        --danger-color: #ff6b6b;
+    }
+
+    .insurance-container {
+        background-color: var(--bg-secondary);
+        padding: 2rem;
+        min-height: 100vh;
+    }
+
+    .insurance-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .insurance-title {
+        font-size: 1.75rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin: 0;
+    }
+
+    .btn-group {
+        display: flex;
+        gap: 0.75rem;
+    }
+
+    .btn {
+        padding: 0.75rem 1.25rem;
+        border-radius: 8px;
+        font-weight: 500;
+        font-size: 0.9rem;
+        transition: all 0.2s ease;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-outline {
+        background-color: transparent;
+        border: 1px solid var(--text-secondary);
+        color: var(--text-secondary);
+    }
+
+    .btn-outline:hover {
+        border-color: var(--text-primary);
+        color: var(--text-primary);
+    }
+
+    .btn-outline-danger {
+        background-color: transparent;
+        border: 1px solid var(--danger-color);
+        color: var(--danger-color);
+    }
+
+    .btn-outline-danger:hover {
+        background-color: rgba(255, 107, 107, 0.1);
+    }
+
+    .btn-back {
+        background-color: transparent;
+        border: 1px solid var(--border-color);
+        color: var(--text-secondary);
+    }
+
+    .btn-back:hover {
+        border-color: var(--accent-color);
+        color: var(--accent-color);
+    }
+
+    .insurance-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .insurance-card {
+        background-color: var(--bg-primary);
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        border: 1px solid var(--border-color);
+    }
+
+    .card-header {
+        padding-bottom: 1rem;
+        margin-bottom: 1rem;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .card-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin: 0;
+    }
+
+    .detail-list {
+        display: grid;
+        grid-template-columns: max-content 1fr;
+        gap: 0.75rem 1rem;
+    }
+
+    .detail-term {
+        font-weight: 500;
+        color: var(--text-secondary);
+    }
+
+    .detail-definition {
+        color: var(--text-primary);
+        margin: 0;
+    }
+
+    .badge {
+        display: inline-block;
+        padding: 0.35rem 0.65rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        line-height: 1;
+        text-align: center;
+        white-space: nowrap;
+        vertical-align: baseline;
+        border-radius: 10rem;
+    }
+
+    .badge-active {
+        background-color: rgba(46, 200, 166, 0.1);
+        color: var(--success-color);
+    }
+
+    .badge-inactive {
+        background-color: rgba(100, 116, 139, 0.1);
+        color: var(--inactive-color);
+    }
+
+    .notes-card {
+        background-color: var(--bg-primary);
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        border: 1px solid var(--border-color);
+        grid-column: span 2;
+    }
+
+    .notes-content {
+        color: var(--text-primary);
+        line-height: 1.6;
+    }
+
+    .empty-notes {
+        color: var(--text-secondary);
+        font-style: italic;
+    }
+
+    @media (max-width: 768px) {
+        .insurance-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .notes-card {
+            grid-column: span 1;
+        }
+
+        .insurance-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+
+        .btn-group {
+            width: 100%;
+            justify-content: flex-end;
+        }
+    }
+</style>
+
+<div class="insurance-container">
+    <div class="insurance-header">
+        <h1 class="insurance-title">Insurance Policy Details</h1>
+        <div class="btn-group">
+            <a href="{% url 'insurance_policy_update' insurance_policy.pk %}" class="btn btn-outline">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                </svg>
+                Edit
+            </a>
+            <a href="{% url 'insurance_policy_delete' insurance_policy.pk %}" class="btn btn-outline-danger">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="3 6 5 6 21 6"></polyline>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                </svg>
+                Delete
+            </a>
+        </div>
+    </div>
+
+    <div class="insurance-grid">
+        <div class="insurance-card">
+            <div class="card-header">
+                <h2 class="card-title">Policy Information</h2>
+            </div>
+            <div class="detail-list">
+                <span class="detail-term">Patient:</span>
+                <a href="{% url 'patient_detail' insurance_policy.patient.pk %}" class="detail-definition" style="color: var(--accent-color);">
+                    {{ insurance_policy.patient.first_name }} {{ insurance_policy.patient.last_name }}
+                </a>
+                
+                <span class="detail-term">Provider:</span>
+                <p class="detail-definition">{{ insurance_policy.provider_name }}</p>
+                
+                <span class="detail-term">Policy Number:</span>
+                <p class="detail-definition">{{ insurance_policy.policy_number }}</p>
+                
+                <span class="detail-term">Group Number:</span>
+                <p class="detail-definition">{{ insurance_policy.group_number|default:"N/A" }}</p>
+                
+                <span class="detail-term">Subscriber:</span>
+                <p class="detail-definition">{{ insurance_policy.subscriber_name }}</p>
+                
+                <span class="detail-term">Relationship:</span>
+                <p class="detail-definition">{{ insurance_policy.relationship_to_patient }}</p>
+                
+                <span class="detail-term">Status:</span>
+                <p class="detail-definition">
+                    <span class="badge badge-{% if insurance_policy.is_active %}active{% else %}inactive{% endif %}">
+                        {% if insurance_policy.is_active %}Active{% else %}Inactive{% endif %}
+                    </span>
+                </p>
+            </div>
+        </div>
+        
+        <div class="insurance-card">
+            <div class="card-header">
+                <h2 class="card-title">Coverage Details</h2>
+            </div>
+            <div class="detail-list">
+                <span class="detail-term">Start Date:</span>
+                <p class="detail-definition">{{ insurance_policy.coverage_start_date|date:"M d, Y" }}</p>
+                
+                <span class="detail-term">End Date:</span>
+                <p class="detail-definition">
+                    {% if insurance_policy.coverage_end_date %}
+                        {{ insurance_policy.coverage_end_date|date:"M d, Y" }}
+                    {% else %}
+                        N/A
+                    {% endif %}
+                </p>
+                
+                <span class="detail-term">Created At:</span>
+                <p class="detail-definition">{{ insurance_policy.created_at|date:"M d, Y H:i" }}</p>
+                
+                <span class="detail-term">Updated At:</span>
+                <p class="detail-definition">{{ insurance_policy.updated_at|date:"M d, Y H:i" }}</p>
+            </div>
+        </div>
+        
+        <div class="notes-card">
+            <div class="card-header">
+                <h2 class="card-title">Notes</h2>
+            </div>
+            <div class="notes-content">
+                {% if insurance_policy.notes %}
+                    {{ insurance_policy.notes|linebreaks }}
+                {% else %}
+                    <p class="empty-notes">No notes available.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <a href="{% url 'insurance_policy_list' %}" class="btn btn-back">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
+        Back to List
+    </a>
+</div>
+{% endblock %}

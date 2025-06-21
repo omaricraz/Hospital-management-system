@@ -1,0 +1,444 @@
+{% extends 'ehr/base.html' %}
+
+{% block title %}{% if form.instance.pk %}Edit{% else %}Add{% endif %} User{% endblock %}
+
+{% block content %}
+<style>
+    :root {
+        --bg-primary: #0b1120;
+        --bg-secondary: #0b1120;
+        --accent-color: #2ec8a6;
+        --text-primary: #f8fafc;
+        --text-secondary: #94a3b8;
+        --error-color: #ff6b6b;
+        --border-color: #1e293b;
+    }
+
+    .user-form {
+        max-width: 900px;
+        margin: 2rem auto;
+        padding: 2rem;
+        background-color: var(--bg-primary);
+        border-radius: 16px;
+    }
+
+    .form-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .form-title {
+        font-size: 1.4rem;
+        font-weight: 600;
+        color: var(--accent-color);
+        margin: 0;
+    }
+
+    .form-sections {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+
+    .form-section {
+        background-color: rgba(255, 255, 255, 0.02);
+        border-radius: 8px;
+        padding: 1.5rem;
+        border: 1px solid var(--border-color);
+    }
+
+    .section-title {
+        font-size: 1.1rem;
+        font-weight: 500;
+        color: var(--accent-color);
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.25rem;
+    }
+
+    .form-group {
+        margin-bottom: 1rem;
+    }
+
+    .form-group.full-width {
+        grid-column: span 2;
+    }
+
+    .checkbox-group {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .form-check-input {
+        width: 1.1em;
+        height: 1.1em;
+        margin-top: 0;
+    }
+
+    label.form-label {
+        display: block;
+        font-size: 0.85rem;
+        font-weight: 500;
+        color: var(--text-secondary);
+        margin-bottom: 0.5rem;
+    }
+
+    input, select, textarea {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        background-color: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        color: var(--text-primary);
+        font-size: 0.9rem;
+        transition: all 0.2s ease;
+    }
+
+    input:focus, select:focus, textarea:focus {
+        border-color: var(--accent-color);
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(46, 200, 166, 0.2);
+    }
+
+    .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.75rem;
+        margin-top: 1.5rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid var(--border-color);
+    }
+
+    .btn {
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 500;
+        font-size: 0.9rem;
+        transition: all 0.2s ease;
+        cursor: pointer;
+    }
+
+    .btn-primary {
+        background-color: var(--accent-color);
+        border: none;
+        color: var(--bg-primary);
+    }
+
+    .btn-primary:hover {
+        background-color: #25a38a;
+        transform: translateY(-1px);
+    }
+
+    .btn-outline {
+        background-color: transparent;
+        border: 1px solid var(--text-secondary);
+        color: var(--text-secondary);
+    }
+
+    .btn-outline:hover {
+        border-color: var(--accent-color);
+        color: var(--accent-color);
+    }
+
+    .invalid-feedback {
+        font-size: 0.8rem;
+        color: var(--error-color);
+        margin-top: 0.25rem;
+    }
+
+    .is-invalid {
+        border-color: var(--error-color);
+    }
+
+    .role-specific-fields {
+        grid-column: span 2;
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 1.25rem;
+        margin-top: 0.5rem;
+        padding: 1rem;
+        background-color: rgba(46, 200, 166, 0.05);
+        border-radius: 8px;
+        border: 1px dashed var(--accent-color);
+    }
+
+    @media (max-width: 768px) {
+        .user-form {
+            padding: 1.5rem;
+            margin: 1rem;
+        }
+
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .role-specific-fields {
+            grid-template-columns: 1fr;
+        }
+
+        .form-actions {
+            flex-direction: column;
+        }
+
+        .btn {
+            width: 100%;
+        }
+    }
+</style>
+
+<div class="user-form">
+    <div class="form-header">
+        <h2 class="form-title">{% if form.instance.pk %}Edit{% else %}Add{% endif %} User</h2>
+        <a href="{% if form.instance.pk %}{% url 'user_detail' form.instance.pk %}{% else %}{% url 'user_list' %}{% endif %}" class="btn btn-outline">
+            Cancel
+        </a>
+    </div>
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        <div class="form-sections">
+            <!-- Personal Info Section -->
+            <div class="form-section">
+                <h3 class="section-title">Personal Information</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="{{ form.username.id_for_label }}" class="form-label">Username</label>
+                        {{ form.username }}
+                        {% if form.username.errors %}
+                            <div class="invalid-feedback">
+                                {{ form.username.errors.as_text }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.email.id_for_label }}" class="form-label">Email</label>
+                        {{ form.email }}
+                        {% if form.email.errors %}
+                            <div class="invalid-feedback">
+                                {{ form.email.errors.as_text }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.first_name.id_for_label }}" class="form-label">First Name</label>
+                        {{ form.first_name }}
+                        {% if form.first_name.errors %}
+                            <div class="invalid-feedback">
+                                {{ form.first_name.errors.as_text }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.last_name.id_for_label }}" class="form-label">Last Name</label>
+                        {{ form.last_name }}
+                        {% if form.last_name.errors %}
+                            <div class="invalid-feedback">
+                                {{ form.last_name.errors.as_text }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.phone_number.id_for_label }}" class="form-label">Phone Number</label>
+                        {{ form.phone_number }}
+                        {% if form.phone_number.errors %}
+                            <div class="invalid-feedback">
+                                {{ form.phone_number.errors.as_text }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.status.id_for_label }}" class="form-label">Status</label>
+                        {{ form.status }}
+                        {% if form.status.errors %}
+                            <div class="invalid-feedback">
+                                {{ form.status.errors.as_text }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label for="{{ form.profile_picture.id_for_label }}" class="form-label">Profile Picture</label>
+                        {{ form.profile_picture }}
+                        {% if form.profile_picture.errors %}
+                            <div class="invalid-feedback">
+                                {{ form.profile_picture.errors.as_text }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Professional Info Section -->
+            <div class="form-section">
+                <h3 class="section-title">Professional Information</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="{{ form.role.id_for_label }}" class="form-label">Role</label>
+                        {{ form.role }}
+                        {% if form.role.errors %}
+                            <div class="invalid-feedback">
+                                {{ form.role.errors.as_text }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    {% if form.instance.role == "DOCTOR" or form.instance.role == "NURSE" %}
+                        <div class="role-specific-fields">
+                            <div class="form-group">
+                                <label for="{{ form.license_number.id_for_label }}" class="form-label">License Number</label>
+                                {{ form.license_number }}
+                                {% if form.license_number.errors %}
+                                    <div class="invalid-feedback">
+                                        {{ form.license_number.errors.as_text }}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="form-group">
+                                <label for="{{ form.specialization.id_for_label }}" class="form-label">Specialization</label>
+                                {{ form.specialization }}
+                                {% if form.specialization.errors %}
+                                    <div class="invalid-feedback">
+                                        {{ form.specialization.errors.as_text }}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="form-group">
+                                <label for="{{ form.department.id_for_label }}" class="form-label">Department</label>
+                                {{ form.department }}
+                                {% if form.department.errors %}
+                                    <div class="invalid-feedback">
+                                        {{ form.department.errors.as_text }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Permissions Section -->
+            <div class="form-section">
+                <h3 class="section-title">Permissions</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <div class="checkbox-group">
+                            {{ form.is_active }}
+                            <label for="{{ form.is_active.id_for_label }}" class="form-label">Active</label>
+                        </div>
+                        {% if form.is_active.errors %}
+                            <div class="invalid-feedback">
+                                {{ form.is_active.errors.as_text }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <div class="checkbox-group">
+                            {{ form.is_staff }}
+                            <label for="{{ form.is_staff.id_for_label }}" class="form-label">Staff</label>
+                        </div>
+                        {% if form.is_staff.errors %}
+                            <div class="invalid-feedback">
+                                {{ form.is_staff.errors.as_text }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <div class="checkbox-group">
+                            {{ form.is_superuser }}
+                            <label for="{{ form.is_superuser.id_for_label }}" class="form-label">Superuser</label>
+                        </div>
+                        {% if form.is_superuser.errors %}
+                            <div class="invalid-feedback">
+                                {{ form.is_superuser.errors.as_text }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Password Section (for create form) -->
+            {% if form.password1 and form.password2 %}
+            <div class="form-section">
+                <h3 class="section-title">Password</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="{{ form.password1.id_for_label }}" class="form-label">Password</label>
+                        {{ form.password1 }}
+                        {% if form.password1.errors %}
+                            <div class="invalid-feedback">
+                                {{ form.password1.errors.as_text }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.password2.id_for_label }}" class="form-label">Password Confirmation</label>
+                        {{ form.password2 }}
+                        {% if form.password2.errors %}
+                            <div class="invalid-feedback">
+                                {{ form.password2.errors.as_text }}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">
+                {% if form.instance.pk %}Update{% else %}Create{% endif %} User
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add animation to form
+        const form = document.querySelector('.user-form');
+        form.style.opacity = '0';
+        form.style.transform = 'translateY(10px)';
+        form.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+        
+        setTimeout(() => {
+            form.style.opacity = '1';
+            form.style.transform = 'translateY(0)';
+        }, 50);
+        
+        // Dynamic role-specific fields
+        const roleSelect = document.getElementById('{{ form.role.id_for_label }}');
+        if (roleSelect) {
+            roleSelect.addEventListener('change', function() {
+                const roleSpecificFields = document.querySelector('.role-specific-fields');
+                if (this.value === 'DOCTOR' || this.value === 'NURSE') {
+                    roleSpecificFields.style.display = 'grid';
+                } else {
+                    roleSpecificFields.style.display = 'none';
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}

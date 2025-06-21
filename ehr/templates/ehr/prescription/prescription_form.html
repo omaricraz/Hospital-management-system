@@ -1,0 +1,296 @@
+{% extends 'ehr/base.html' %}
+
+{% block title %}{% if form.instance.pk %}Edit{% else %}Add{% endif %} Prescription{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row mb-4 justify-content-center">
+        <div class="col-md-6 text-center">
+            <h2>{% if form.instance.pk %}Edit{% else %}Add{% endif %} Prescription</h2>
+        </div>
+    </div>
+
+    <div class="form-container">
+        <form method="post">
+            {% csrf_token %}
+            
+            {% if form.non_field_errors %}
+            <div class="alert alert-danger">
+                {% for error in form.non_field_errors %}
+                    {{ error }}
+                {% endfor %}
+            </div>
+            {% endif %}
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="{{ form.patient.id_for_label }}" class="form-label">Patient</label>
+                        {{ form.patient }}
+                        {% if form.patient.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.patient.errors|join:", " }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.medication.id_for_label }}" class="form-label">Medication</label>
+                        {{ form.medication }}
+                        {% if form.medication.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.medication.errors|join:", " }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.dosage.id_for_label }}" class="form-label">Dosage</label>
+                        {{ form.dosage }}
+                        {% if form.dosage.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.dosage.errors|join:", " }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.frequency.id_for_label }}" class="form-label">Frequency</label>
+                        {{ form.frequency }}
+                        {% if form.frequency.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.frequency.errors|join:", " }}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="{{ form.start_date.id_for_label }}" class="form-label">Start Date</label>
+                        {{ form.start_date }}
+                        {% if form.start_date.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.start_date.errors|join:", " }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.end_date.id_for_label }}" class="form-label">End Date</label>
+                        {{ form.end_date }}
+                        {% if form.end_date.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.end_date.errors|join:", " }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.refills.id_for_label }}" class="form-label">Refills</label>
+                        {{ form.refills }}
+                        {% if form.refills.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.refills.errors|join:", " }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.is_active.id_for_label }}" class="form-label">Active</label>
+                        <div class="form-check form-switch">
+                            {{ form.is_active }}
+                        </div>
+                        {% if form.is_active.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.is_active.errors|join:", " }}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-12">
+                    <div class="mb-3">
+                        <label for="{{ form.instructions.id_for_label }}" class="form-label">Instructions</label>
+                        {{ form.instructions }}
+                        {% if form.instructions.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.instructions.errors|join:", " }}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row mb-4">
+                <!-- Cancel button on the left -->
+                <div class="col-6 text-start">
+                    <a href="{% if form.instance.pk %}{% url 'prescription_detail' form.instance.pk %}{% else %}{% url 'prescription_list' %}{% endif %}" 
+                       class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left"></i> Cancel
+                    </a>
+                </div>
+                
+                <!-- Save button on the right -->
+                <div class="col-6 text-end">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-save"></i> Save
+                    </button>
+                </div>
+            </div>
+            
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Initialize date pickers
+    document.addEventListener('DOMContentLoaded', function() {
+        const startDateInput = document.getElementById('{{ form.start_date.id_for_label }}');
+        const endDateInput = document.getElementById('{{ form.end_date.id_for_label }}');
+        
+        if (startDateInput) {
+            startDateInput.type = 'date';
+        }
+        if (endDateInput) {
+            endDateInput.type = 'date';
+        }
+    });
+</script>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --bg-primary: #030817;
+        --bg-secondary: #0b1120;
+        --accent-color: #2ec8a6;
+        --text-primary: #f8fafc;
+        --text-secondary: #94a3b8;
+    }
+
+    body {
+        background-color: var(--bg-secondary);
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        color: var(--text-primary);
+    }
+
+    .form-container {
+        max-width: 700px;
+        margin: 40px auto;
+        padding: 20px;
+    }
+
+    .icon-header {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    .icon-header svg {
+        width: 60px;
+        height: 60px;
+        fill: var(--accent-color);
+    }
+
+    .form-title {
+        text-align: center;
+        font-size: 1.6rem;
+        font-weight: bold;
+        margin-bottom: 25px;
+    }
+
+    label.form-label {
+        font-weight: 500;
+        color: var(--text-secondary);
+        margin-bottom: 5px;
+    }
+
+    input, select, textarea {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid #3c4451;
+        border-radius: 10px;
+        background-color: var(--bg-secondary);
+        color: var(--text-primary);
+        transition: all 0.3s ease-in-out;
+    }
+
+    input:focus, select:focus, textarea:focus {
+        border-color: var(--accent-color);
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(46, 200, 166, 0.3);
+        background-color: var(--bg-primary);
+    }
+
+    .invalid-feedback {
+        font-size: 0.875rem;
+        color: #ff6b6b;
+        margin-top: 5px;
+    }
+
+    .text-muted {
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+    }
+
+    .btn {
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-weight: 500;
+        transition: background-color 0.3s ease;
+    }
+
+    .btn-primary {
+        background-color: var(--accent-color);
+        border: none;
+        color: var(--text-primary);
+    }
+
+    .btn-primary:hover {
+        background-color: #25a38a;
+    }
+
+    .btn-secondary {
+        background-color: #6c757d;
+        border: none;
+        color: white;
+    }
+
+    .btn-secondary:hover {
+        background-color: #565e64;
+    }
+
+    @media (max-width: 768px) {
+        .row .col-md-6 {
+            margin-bottom: 15px;
+        }
+
+        .d-flex.justify-content-between {
+            flex-direction: column;
+        }
+
+        .d-flex.justify-content-between .btn {
+            width: 100%;
+            margin-bottom: 10px;
+        }
+    }
+
+    .alert {
+        padding: 12px 20px;
+        border-radius: 6px;
+        margin-bottom: 20px;
+        font-weight: 500;
+        transition: opacity 0.5s ease-out;
+        text-align: center;
+    }
+
+    .alert-success {
+        background-color: #2ec8a6;
+        color: #ffffff;
+    }
+</style>
+{% endblock %}

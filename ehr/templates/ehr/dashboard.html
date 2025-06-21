@@ -1,0 +1,429 @@
+{% extends 'ehr/base.html' %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<style>
+    :root {
+        --bg-primary: #0b1120;
+        --bg-secondary: #1e293b;
+        --accent-color: #2ec8a6;
+        --text-primary: #f8fafc;
+        --text-secondary: #94a3b8;
+        --card-bg: rgba(255, 255, 255, 0.03);
+        --card-border: rgba(255, 255, 255, 0.1);
+    }
+
+    .dashboard {
+        padding: 2rem;
+    }
+
+    .welcome-header {
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--card-border);
+    }
+
+    .welcome-title {
+        font-size: 2rem;
+        font-weight: 600;
+        color: var(--accent-color);
+        margin-bottom: 0.5rem;
+    }
+
+    .welcome-subtitle {
+        font-size: 1rem;
+        color: var(--text-secondary);
+    }
+
+    .dashboard-card {
+        background-color: var(--card-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 12px;
+        margin-bottom: 1.5rem;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .dashboard-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .card-header {
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid var(--card-border);
+        background-color: rgba(46, 200, 166, 0.05);
+    }
+
+    .card-title {
+        font-size: 1.1rem;
+        font-weight: 500;
+        color: var(--accent-color);
+        margin: 0;
+    }
+
+    .card-body {
+        padding: 1.5rem;
+    }
+
+    .list-item {
+        padding: 1rem;
+        border-bottom: 1px solid var(--card-border);
+        transition: background-color 0.2s ease;
+    }
+
+    .list-item:last-child {
+        border-bottom: none;
+    }
+
+    .list-item:hover {
+        background-color: rgba(46, 200, 166, 0.05);
+    }
+
+    .item-title {
+        font-weight: 500;
+        color: var(--text-primary);
+        margin-bottom: 0.25rem;
+    }
+
+    .item-meta {
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+    }
+
+    .badge {
+        font-size: 0.7rem;
+        font-weight: 500;
+        padding: 0.35em 0.65em;
+    }
+
+    .quick-actions {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+    }
+
+    .quick-action-btn {
+        padding: 0.75rem;
+        border-radius: 8px;
+        text-align: center;
+        background-color: rgba(46, 200, 166, 0.1);
+        border: 1px solid var(--accent-color);
+        color: var(--accent-color);
+        transition: all 0.2s ease;
+    }
+
+    .quick-action-btn:hover {
+        background-color: var(--accent-color);
+        color: var(--bg-primary);
+        transform: translateY(-2px);
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 2rem;
+        color: var(--text-secondary);
+    }
+
+    .empty-state-icon {
+        font-size: 2rem;
+        margin-bottom: 1rem;
+        color: var(--text-secondary);
+    }
+
+    @media (max-width: 768px) {
+        .dashboard {
+            padding: 1rem;
+        }
+    }
+</style>
+
+<div class="dashboard">
+    <div class="welcome-header">
+        <h1 class="welcome-title">Welcome, {{ user.get_full_name }}</h1>
+        <p class="welcome-subtitle">Electronic Health Records System</p>
+    </div>
+    
+    <div class="row">
+        <div class="col-lg-8">
+            {% if user.role == 'PATIENT' %}
+                <!-- Patient Dashboard -->
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h5 class="card-title">My Information</h5>
+                    </div>
+                    <div class="card-body">
+                        {% if patient %}
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="list-item">
+                                        <div class="item-title">Name</div>
+                                        <div class="item-meta">{{ patient.first_name }} {{ patient.last_name }}</div>
+                                    </div>
+                                    <div class="list-item">
+                                        <div class="item-title">Date of Birth</div>
+                                        <div class="item-meta">{{ patient.date_of_birth }}</div>
+                                    </div>
+                                    <div class="list-item">
+                                        <div class="item-title">Gender</div>
+                                        <div class="item-meta">{{ patient.get_gender_display }}</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="list-item">
+                                        <div class="item-title">Phone</div>
+                                        <div class="item-meta">{{ patient.phone_number }}</div>
+                                    </div>
+                                    <div class="list-item">
+                                        <div class="item-title">Emergency Contact</div>
+                                        <div class="item-meta">{{ patient.emergency_contact }} ({{ patient.emergency_phone }})</div>
+                                    </div>
+                                    <div class="list-item">
+                                        <div class="item-title">Blood Type</div>
+                                        <div class="item-meta">{{ patient.blood_type|default:"Not specified" }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% else %}
+                            <div class="empty-state">
+                                <i class="bi bi-person-x empty-state-icon"></i>
+                                <p>No patient profile found.</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="dashboard-card">
+                            <div class="card-header">
+                                <h5 class="card-title">Upcoming Appointments</h5>
+                            </div>
+                            <div class="card-body">
+                                {% if upcoming_appointments %}
+                                    {% for appointment in upcoming_appointments %}
+                                        <div class="list-item">
+                                            <div class="item-title">{{ appointment.date_time }}</div>
+                                            <div class="item-meta">
+                                                With: {{ appointment.provider.get_full_name }}<br>
+                                                Reason: {{ appointment.reason|truncatechars:50 }}
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                    <a href="{% url 'appointment_list' %}" class="btn btn-sm btn-outline-primary w-100 mt-2">View All</a>
+                                {% else %}
+                                    <div class="empty-state">
+                                        <i class="bi bi-calendar-x empty-state-icon"></i>
+                                        <p>No upcoming appointments.</p>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="dashboard-card">
+                            <div class="card-header">
+                                <h5 class="card-title">Active Prescriptions</h5>
+                            </div>
+                            <div class="card-body">
+                                {% if active_prescriptions %}
+                                    {% for prescription in active_prescriptions %}
+                                        <div class="list-item">
+                                            <div class="item-title">{{ prescription.medication }}</div>
+                                            <div class="item-meta">
+                                                Dosage: {{ prescription.dosage }} {{ prescription.get_frequency_display }}<br>
+                                                Prescribed by: {{ prescription.prescriber.get_full_name }}
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                    <a href="{% url 'prescription_list' %}" class="btn btn-sm btn-outline-primary w-100 mt-2">View All</a>
+                                {% else %}
+                                    <div class="empty-state">
+                                        <i class="bi bi-capsule empty-state-icon"></i>
+                                        <p>No active prescriptions.</p>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <!-- Staff Dashboard -->
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="dashboard-card">
+                            <div class="card-header">
+                                <h5 class="card-title">Recent Patients</h5>
+                            </div>
+                            <div class="card-body">
+                                {% if recent_patients %}
+                                    {% for patient in recent_patients %}
+                                        <div class="list-item">
+                                            <a href="{% url 'patient_detail' patient.pk %}" class="item-title">
+                                                {{ patient.first_name }} {{ patient.last_name }}
+                                            </a>
+                                            <div class="item-meta">Added: {{ patient.created_at|date:"M d, Y" }}</div>
+                                        </div>
+                                    {% endfor %}
+                                    <a href="{% url 'patient_list' %}" class="btn btn-sm btn-outline-primary w-100 mt-2">View All</a>
+                                {% else %}
+                                    <div class="empty-state">
+                                        <i class="bi bi-people empty-state-icon"></i>
+                                        <p>No recent patients.</p>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    {% if user.role != 'ADMIN' %}
+                        <div class="col-md-6">
+                            <div class="dashboard-card">
+                                <div class="card-header">
+                                    <h5 class="card-title">Upcoming Appointments</h5>
+                                </div>
+                                <div class="card-body">
+                                    {% if upcoming_appointments %}
+                                        {% for appointment in upcoming_appointments %}
+                                            <div class="list-item">
+                                                <a href="{% url 'appointment_detail' appointment.pk %}" class="item-title">
+                                                    {{ appointment.date_time }}
+                                                </a>
+                                                <div class="item-meta">
+                                                    Patient: {{ appointment.patient.first_name }} {{ appointment.patient.last_name }}<br>
+                                                    Reason: {{ appointment.reason|truncatechars:50 }}
+                                                </div>
+                                            </div>
+                                        {% endfor %}
+                                        <a href="{% url 'appointment_list' %}" class="btn btn-sm btn-outline-primary w-100 mt-2">View All</a>
+                                    {% else %}
+                                        <div class="empty-state">
+                                            <i class="bi bi-calendar-check empty-state-icon"></i>
+                                            <p>No upcoming appointments.</p>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+                
+                {% if user.role != 'ADMIN' %}
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="dashboard-card">
+                                <div class="card-header">
+                                    <h5 class="card-title">Pending Tasks</h5>
+                                </div>
+                                <div class="card-body">
+                                    {% if pending_tasks %}
+                                        {% for task in pending_tasks %}
+                                            <div class="list-item">
+                                                <div class="d-flex justify-content-between">
+                                                    <a href="{% url 'task_detail' task.pk %}" class="item-title">
+                                                        {{ task.title }}
+                                                    </a>
+                                                    <span class="badge bg-{{ task.get_priority_class }}">
+                                                        {{ task.get_priority_display }}
+                                                    </span>
+                                                </div>
+                                                <div class="item-meta">
+                                                    Due: {{ task.due_date|date:"M d, Y" }}<br>
+                                                    Status: {{ task.get_status_display }}
+                                                </div>
+                                            </div>
+                                        {% endfor %}
+                                        <a href="{% url 'task_list' %}" class="btn btn-sm btn-outline-primary w-100 mt-2">View All</a>
+                                    {% else %}
+                                        <div class="empty-state">
+                                            <i class="bi bi-list-check empty-state-icon"></i>
+                                            <p>No pending tasks.</p>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            {% endif %}
+        </div>
+        
+        <div class="col-lg-4">
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <h5 class="card-title">Alerts & Notifications</h5>
+                </div>
+                <div class="card-body">
+                    {% if unread_alerts %}
+                        {% for user_alert in unread_alerts %}
+                            <div class="list-item">
+                                <div class="d-flex justify-content-between">
+                                    <a href="{% url 'alert_detail' user_alert.alert.pk %}" class="item-title">
+                                        {{ user_alert.alert.title }}
+                                    </a>
+                                    <span class="badge bg-{{ user_alert.alert.get_priority_class }}">
+                                        {{ user_alert.alert.get_priority_display }}
+                                    </span>
+                                </div>
+                                <div class="item-meta">{{ user_alert.alert.message|truncatechars:100 }}</div>
+                            </div>
+                        {% endfor %}
+                        <a href="{% url 'alert_list' %}" class="btn btn-sm btn-outline-primary w-100 mt-2">View All</a>
+                    {% else %}
+                        <div class="empty-state">
+                            <i class="bi bi-bell empty-state-icon"></i>
+                            <p>No unread alerts.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            {% if user.role == 'ADMIN' %}
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h5 class="card-title">Quick Actions</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="quick-actions">
+                            <a href="{% url 'patient_create' %}" class="quick-action-btn">
+                                <i class="bi bi-person-plus"></i> Add New Patient
+                            </a>
+                            <a href="{% url 'appointment_create' %}" class="quick-action-btn">
+                                <i class="bi bi-calendar-plus"></i> Schedule Appointment
+                            </a>
+                            <a href="{% url 'user_create' %}" class="quick-action-btn">
+                                <i class="bi bi-person-plus"></i> Add New User
+                            </a>
+                            <a href="{% url 'report_create' %}" class="quick-action-btn">
+                                <i class="bi bi-file-earmark-bar-graph"></i> Create Report
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add hover effects to cards
+        const cards = document.querySelectorAll('.dashboard-card');
+        cards.forEach(card => {
+            card.style.transition = 'transform 0.3s ease, box-shadow 0.3s ease';
+        });
+        
+        // Add animation to welcome header
+        const welcomeHeader = document.querySelector('.welcome-header');
+        welcomeHeader.style.opacity = '0';
+        welcomeHeader.style.transform = 'translateY(10px)';
+        welcomeHeader.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
+        
+        setTimeout(() => {
+            welcomeHeader.style.opacity = '1';
+            welcomeHeader.style.transform = 'translateY(0)';
+        }, 100);
+    });
+</script>
+{% endblock %}

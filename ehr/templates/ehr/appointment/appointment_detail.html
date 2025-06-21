@@ -1,0 +1,482 @@
+{% extends 'ehr/base.html' %}
+
+{% block title %}Appointment Details{% endblock %}
+
+{% block content %}
+<style>
+    :root {
+        --bg-primary: #0b1120;
+        --bg-secondary: #0b1120;
+        --accent-color: #2ec8a6;
+        --danger-color: #ff6b6b;
+        --warning-color: #ffc107;
+        --success-color: #28a745;
+        --text-primary: #f8fafc;
+        --text-secondary: #94a3b8;
+        --border-color: #1e293b;
+    }
+
+    .appointment-container {
+        background-color: var(--bg-secondary);
+        padding: 2rem;
+        min-height: 100vh;
+    }
+
+    .appointment-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .appointment-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin: 0;
+    }
+
+    .btn {
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 500;
+        font-size: 0.9rem;
+        transition: all 0.2s ease;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-outline {
+        background-color: transparent;
+        border: 1px solid var(--text-secondary);
+        color: var(--text-secondary);
+    }
+
+    .btn-outline:hover {
+        border-color: var(--accent-color);
+        color: var(--accent-color);
+    }
+
+    .btn-danger {
+        background-color: var(--danger-color);
+        border: none;
+        color: var(--text-primary);
+    }
+
+    .btn-danger:hover {
+        background-color: #ff4757;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(255, 107, 107, 0.2);
+    }
+
+    .detail-card {
+        background-color: var(--bg-primary);
+        border-radius: 12px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .detail-section {
+        margin-bottom: 2rem;
+    }
+
+    .section-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--accent-color);
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .detail-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .detail-item {
+        margin-bottom: 1rem;
+    }
+
+    .detail-label {
+        font-size: 0.85rem;
+        font-weight: 500;
+        color: var(--text-secondary);
+        margin-bottom: 0.25rem;
+    }
+
+    .detail-value {
+        font-size: 1rem;
+        color: var(--text-primary);
+    }
+
+    .patient-link {
+        color: var(--accent-color);
+        text-decoration: none;
+        transition: color 0.2s ease;
+    }
+
+    .patient-link:hover {
+        color: #25a38a;
+        text-decoration: underline;
+    }
+
+    .badge {
+        display: inline-block;
+        padding: 0.35rem 0.65rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        line-height: 1;
+        text-align: center;
+        white-space: nowrap;
+        vertical-align: baseline;
+        border-radius: 10rem;
+    }
+
+    .badge-scheduled {
+        background-color: rgba(40, 167, 69, 0.1);
+        color: var(--success-color);
+    }
+
+    .badge-completed {
+        background-color: rgba(46, 200, 166, 0.1);
+        color: var(--accent-color);
+    }
+
+    .badge-cancelled {
+        background-color: rgba(255, 107, 107, 0.1);
+        color: var(--danger-color);
+    }
+
+    .badge-no-show {
+        background-color: rgba(255, 193, 7, 0.1);
+        color: var(--warning-color);
+    }
+
+    .badge-active {
+        background-color: rgba(40, 167, 69, 0.1);
+        color: var(--success-color);
+    }
+
+    .badge-inactive {
+        background-color: rgba(108, 117, 125, 0.1);
+        color: var(--text-secondary);
+    }
+
+    .tabs-container {
+        margin-top: 2rem;
+    }
+
+    .nav-tabs {
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .nav-tabs .nav-link {
+        color: var(--text-secondary);
+        border: 1px solid transparent;
+        border-bottom: none;
+        padding: 0.75rem 1.25rem;
+        font-size: 0.9rem;
+        transition: all 0.2s ease;
+    }
+
+    .nav-tabs .nav-link:hover {
+        color: var(--accent-color);
+        border-color: transparent;
+    }
+
+    .nav-tabs .nav-link.active {
+        color: var(--accent-color);
+        background-color: var(--bg-primary);
+        border-color: var(--border-color) var(--border-color) var(--bg-primary);
+    }
+
+    .tab-content {
+        background-color: var(--bg-primary);
+        border: 1px solid var(--border-color);
+        border-top: none;
+        border-radius: 0 0 8px 8px;
+        padding: 1.5rem;
+    }
+
+    .records-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+
+    .records-table thead th {
+        background-color: var(--bg-secondary);
+        color: var(--text-secondary);
+        font-weight: 500;
+        padding: 0.75rem;
+        text-align: left;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .records-table tbody tr {
+        transition: background-color 0.2s ease;
+    }
+
+    .records-table tbody tr:hover {
+        background-color: rgba(46, 200, 166, 0.05);
+    }
+
+    .records-table tbody td {
+        padding: 0.75rem;
+        border-bottom: 1px solid var(--border-color);
+        color: var(--text-primary);
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 1.5rem;
+        color: var(--text-secondary);
+    }
+
+    .btn-sm {
+        padding: 0.5rem;
+        border-radius: 6px;
+        font-size: 0.8rem;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    @media (max-width: 768px) {
+        .detail-row {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+        
+        .appointment-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+    }
+</style>
+
+<div class="appointment-container">
+    <div class="detail-card">
+        <div class="appointment-header">
+            <h1 class="appointment-title">Appointment Details</h1>
+            <div class="action-buttons">
+                <a href="{% url 'appointment_update' object.pk %}" class="btn btn-outline">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                    </svg>
+                    Edit
+                </a>
+                <a href="{% url 'appointment_delete' object.pk %}" class="btn btn-danger">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="3 6 5 6 21 6"></polyline>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                    </svg>
+                    Delete
+                </a>
+            </div>
+        </div>
+
+        <div class="detail-section">
+            <div class="detail-row">
+                <div>
+                    <h3 class="section-title">Patient Information</h3>
+                    <div class="detail-item">
+                        <div class="detail-label">Name</div>
+                        <div class="detail-value">
+                            <a href="{% url 'patient_detail' object.patient.pk %}" class="patient-link">
+                                {{ object.patient.first_name }} {{ object.patient.last_name }}
+                            </a>
+                        </div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Date of Birth</div>
+                        <div class="detail-value">{{ object.patient.date_of_birth }}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Phone</div>
+                        <div class="detail-value">{{ object.patient.phone_number }}</div>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="section-title">Appointment Details</h3>
+                    <div class="detail-item">
+                        <div class="detail-label">Date/Time</div>
+                        <div class="detail-value">{{ object.date_time }}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Provider</div>
+                        <div class="detail-value">{{ object.provider.get_full_name }}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Duration</div>
+                        <div class="detail-value">{{ object.duration }} minutes</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Status</div>
+                        <div class="detail-value">
+                            <span class="badge badge-{{ object.get_status_display|lower }}">
+                                {{ object.get_status_display }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="detail-section">
+            <h3 class="section-title">Reason for Appointment</h3>
+            <div class="detail-value">{{ object.reason }}</div>
+        </div>
+
+        {% if object.notes %}
+        <div class="detail-section">
+            <h3 class="section-title">Notes</h3>
+            <div class="detail-value">{{ object.notes }}</div>
+        </div>
+        {% endif %}
+    </div>
+
+    {% if user.role == 'DOCTOR' or user.role == 'ADMIN' %}
+    <div class="detail-card tabs-container">
+        <div class="appointment-header">
+            <h3 class="section-title">Related Records</h3>
+            <div class="action-buttons">
+                <a href="{% url 'prescription_create_for_patient' object.patient.pk %}" class="btn btn-outline">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M10 2v4"></path>
+                        <path d="M14 2v4"></path>
+                        <rect x="3" y="8" width="18" height="4" rx="1"></rect>
+                        <path d="M7 12h10"></path>
+                        <path d="M7 16h10"></path>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path>
+                    </svg>
+                    Add Prescription
+                </a>
+                <a href="{% url 'treatment_plan_create_for_patient' object.patient.pk %}" class="btn btn-outline">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                        <polyline points="10 9 9 9 8 9"></polyline>
+                    </svg>
+                    Add Treatment Plan
+                </a>
+            </div>
+        </div>
+
+        <ul class="nav nav-tabs" id="relatedRecordsTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="prescriptions-tab" data-bs-toggle="tab" data-bs-target="#prescriptions" type="button" role="tab">
+                    Prescriptions
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="treatment-plans-tab" data-bs-toggle="tab" data-bs-target="#treatment-plans" type="button" role="tab">
+                    Treatment Plans
+                </button>
+            </li>
+        </ul>
+        <div class="tab-content" id="relatedRecordsTabContent">
+            <div class="tab-pane fade show active" id="prescriptions" role="tabpanel">
+                {% if object.patient.prescriptions.all %}
+                <div class="table-responsive">
+                    <table class="records-table">
+                        <thead>
+                            <tr>
+                                <th>Medication</th>
+                                <th>Dosage</th>
+                                <th>Frequency</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for prescription in object.patient.prescriptions.all %}
+                            <tr>
+                                <td>{{ prescription.medication }}</td>
+                                <td>{{ prescription.dosage }}</td>
+                                <td>{{ prescription.get_frequency_display }}</td>
+                                <td>
+                                    {% if prescription.is_active %}
+                                    <span class="badge badge-active">Active</span>
+                                    {% else %}
+                                    <span class="badge badge-inactive">Inactive</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="{% url 'prescription_detail' prescription.pk %}" class="btn btn-sm btn-outline">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                            <circle cx="12" cy="12" r="3"></circle>
+                                        </svg>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="empty-state">No prescriptions found for this patient.</div>
+                {% endif %}
+            </div>
+            <div class="tab-pane fade" id="treatment-plans" role="tabpanel">
+                {% if object.patient.treatment_plans.all %}
+                <div class="table-responsive">
+                    <table class="records-table">
+                        <thead>
+                            <tr>
+                                <th>Diagnosis</th>
+                                <th>Start Date</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for plan in object.patient.treatment_plans.all %}
+                            <tr>
+                                <td>{{ plan.diagnosis }}</td>
+                                <td>{{ plan.start_date }}</td>
+                                <td>
+                                    {% if plan.is_active %}
+                                    <span class="badge badge-active">Active</span>
+                                    {% else %}
+                                    <span class="badge badge-inactive">Inactive</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="{% url 'treatment_plan_detail' plan.pk %}" class="btn btn-sm btn-outline">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                            <circle cx="12" cy="12" r="3"></circle>
+                                        </svg>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="empty-state">No treatment plans found for this patient.</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

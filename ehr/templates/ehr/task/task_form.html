@@ -1,0 +1,298 @@
+{% extends 'ehr/base.html' %}
+
+{% block title %}{% if form.instance.pk %}Edit{% else %}Create{% endif %} Task{% endblock %}
+
+{% block content %}
+<style>
+    :root {
+        --bg-primary: #0b1120;
+        --bg-secondary: #0b1120;
+        --accent-color: #2ec8a6;
+        --text-primary: #f8fafc;
+        --text-secondary: #94a3b8;
+        --error-color: #ff6b6b;
+        --border-color: #1e293b;
+    }
+
+    .task-form {
+        max-width: 700px;
+        margin: 2rem auto;
+        padding: 2rem;
+        background-color: var(--bg-primary);
+        border-radius: 16px;
+
+    }
+
+    .form-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .form-title {
+        font-size: 1.4rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin: 0;
+    }
+
+    .btn {
+        padding: 0.6rem 1.2rem;
+        border-radius: 8px;
+        font-weight: 500;
+        font-size: 0.9rem;
+        transition: all 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-outline {
+        background-color: transparent;
+        border: 1px solid var(--text-secondary);
+        color: var(--text-secondary);
+    }
+
+    .btn-outline:hover {
+        border-color: var(--accent-color);
+        color: var(--accent-color);
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .form-group {
+        margin-bottom: 0;
+    }
+
+    .form-group.full-width {
+        grid-column: span 2;
+    }
+
+    label.form-label {
+        display: block;
+        font-size: 0.85rem;
+        font-weight: 500;
+        color: var(--text-secondary);
+        margin-bottom: 0.5rem;
+    }
+
+    input, select, textarea {
+        width: 100%;
+        padding: 0.7rem 1rem;
+        background-color: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        color: var(--text-primary);
+        font-size: 0.9rem;
+        transition: all 0.2s ease;
+    }
+
+    textarea {
+        min-height: 100px;
+        resize: vertical;
+    }
+
+    input:focus, select:focus, textarea:focus {
+        border-color: var(--accent-color);
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(46, 200, 166, 0.2);
+    }
+
+    .form-actions {
+        margin-top: 1.5rem;
+    }
+
+    .btn-primary {
+        background-color: var(--accent-color);
+        border: none;
+        color: var(--bg-primary);
+        width: 100%;
+        justify-content: center;
+    }
+
+    .btn-primary:hover {
+        background-color: #25a38a;
+        transform: translateY(-1px);
+    }
+
+    .alert-message {
+        padding: 0.75rem 1rem;
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+        font-size: 0.9rem;
+        background-color: rgba(255, 107, 107, 0.1);
+        border: 1px solid rgba(255, 107, 107, 0.3);
+        color: var(--error-color);
+    }
+
+    .invalid-feedback {
+        font-size: 0.8rem;
+        color: var(--error-color);
+        margin-top: 0.25rem;
+    }
+
+    .is-invalid {
+        border-color: var(--error-color);
+    }
+
+    @media (max-width: 640px) {
+        .task-form {
+            padding: 1.5rem;
+            margin: 1rem;
+        }
+
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .form-group.full-width {
+            grid-column: span 1;
+        }
+
+        .form-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+    }
+</style>
+
+<div class="task-form">
+    <div class="form-header">
+        <h2 class="form-title">{% if form.instance.pk %}Edit{% else %}Create{% endif %} Task</h2>
+        <a href="{% if form.instance.pk %}{% url 'task_detail' form.instance.pk %}{% else %}{% url 'task_list' %}{% endif %}" class="btn btn-outline">
+            <i class="bi bi-arrow-left"></i> Cancel
+        </a>
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+        
+        {% if form.non_field_errors %}
+        <div class="alert-message">
+            {% for error in form.non_field_errors %}
+            {{ error }}
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="form-grid">
+            <div class="form-group">
+                <label for="{{ form.title.id_for_label }}" class="form-label">Title</label>
+                {{ form.title }}
+                {% if form.title.errors %}
+                <div class="invalid-feedback">
+                    {% for error in form.title.errors %}
+                    {{ error }}
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.assigned_to.id_for_label }}" class="form-label">Assigned To</label>
+                {{ form.assigned_to }}
+                {% if form.assigned_to.errors %}
+                <div class="invalid-feedback">
+                    {% for error in form.assigned_to.errors %}
+                    {{ error }}
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.due_date.id_for_label }}" class="form-label">Due Date</label>
+                {{ form.due_date }}
+                {% if form.due_date.errors %}
+                <div class="invalid-feedback">
+                    {% for error in form.due_date.errors %}
+                    {{ error }}
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.priority.id_for_label }}" class="form-label">Priority</label>
+                {{ form.priority }}
+                {% if form.priority.errors %}
+                <div class="invalid-feedback">
+                    {% for error in form.priority.errors %}
+                    {{ error }}
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.status.id_for_label }}" class="form-label">Status</label>
+                {{ form.status }}
+                {% if form.status.errors %}
+                <div class="invalid-feedback">
+                    {% for error in form.status.errors %}
+                    {{ error }}
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="form-group full-width">
+            <label for="{{ form.description.id_for_label }}" class="form-label">Description</label>
+            {{ form.description }}
+            {% if form.description.errors %}
+            <div class="invalid-feedback">
+                {% for error in form.description.errors %}
+                {{ error }}
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-save"></i> Save Task
+            </button>
+        </div>
+    </form>
+</div>
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize datetime picker for due_date field
+        const dueDateField = document.getElementById('{{ form.due_date.id_for_label }}');
+        if (dueDateField) {
+            dueDateField.type = 'datetime-local';
+            
+            // Set default time to next full hour if creating new task
+            {% if not form.instance.pk %}
+            const now = new Date();
+            const nextHour = new Date(now.setHours(now.getHours() + 1, 0, 0, 0));
+            const timezoneOffset = nextHour.getTimezoneOffset() * 60000;
+            const localISOTime = (new Date(nextHour - timezoneOffset)).toISOString().slice(0, 16);
+            dueDateField.value = localISOTime;
+            {% endif %}
+        }
+        
+        // Add subtle animation to form on load
+        const form = document.querySelector('.task-form');
+        form.style.opacity = '0';
+        form.style.transform = 'translateY(10px)';
+        form.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+        
+        setTimeout(() => {
+            form.style.opacity = '1';
+            form.style.transform = 'translateY(0)';
+        }, 50);
+    });
+</script>
+{% endblock %}
+{% endblock %}

@@ -1,0 +1,225 @@
+{% extends 'ehr/base.html' %}
+
+{% block title %}{% if object %}Edit{% else %}Add{% endif %} Progress Note{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <h2 class="form-title">{% if object %}Edit{% else %}Add{% endif %} Progress Note</h2>
+    <form method="post">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+        <div class="alert alert-danger">
+            {% for error in form.non_field_errors %}
+            {{ error }}
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label for="{{ form.treatment_plan.id_for_label }}" class="form-label">Treatment Plan</label>
+                {{ form.treatment_plan }}
+                {% for error in form.treatment_plan.errors %}
+                <div class="invalid-feedback d-block">{{ error }}</div>
+                {% endfor %}
+            </div>
+            <div class="col-md-6">
+                <label for="{{ form.author.id_for_label }}" class="form-label">Author</label>
+                {{ form.author }}
+                {% for error in form.author.errors %}
+                <div class="invalid-feedback d-block">{{ error }}</div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label for="{{ form.note_date.id_for_label }}" class="form-label">Note Date & Time</label>
+            {{ form.note_date }}
+            {% for error in form.note_date.errors %}
+            <div class="invalid-feedback d-block">{{ error }}</div>
+            {% endfor %}
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label for="{{ form.subjective.id_for_label }}" class="form-label">Subjective</label>
+                {{ form.subjective }}
+                {% for error in form.subjective.errors %}
+                <div class="invalid-feedback d-block">{{ error }}</div>
+                {% endfor %}
+            </div>
+            <div class="col-md-6">
+                <label for="{{ form.objective.id_for_label }}" class="form-label">Objective</label>
+                {{ form.objective }}
+                {% for error in form.objective.errors %}
+                <div class="invalid-feedback d-block">{{ error }}</div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label for="{{ form.assessment.id_for_label }}" class="form-label">Assessment</label>
+                {{ form.assessment }}
+                {% for error in form.assessment.errors %}
+                <div class="invalid-feedback d-block">{{ error }}</div>
+                {% endfor %}
+            </div>
+            <div class="col-md-6">
+                <label for="{{ form.plan.id_for_label }}" class="form-label">Plan</label>
+                {{ form.plan }}
+                {% for error in form.plan.errors %}
+                <div class="invalid-feedback d-block">{{ error }}</div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-end">
+            <a href="{% if object %}{% url 'treatment_plan_detail' object.treatment_plan.pk %}{% else %}{% url 'treatment_plan_detail' treatment_plan_id %}{% endif %}" 
+               class="btn btn-secondary me-2">Cancel</a>
+            <button type="submit" class="btn btn-primary">Save</button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const noteDateInput = document.getElementById('{{ form.note_date.id_for_label }}');
+    if (noteDateInput) {
+        noteDateInput.type = 'datetime-local';
+    }
+
+    const treatmentPlanInput = document.getElementById('{{ form.treatment_plan.id_for_label }}');
+    const authorInput = document.getElementById('{{ form.author.id_for_label }}');
+
+    if (treatmentPlanInput && treatmentPlanInput.value) {
+        treatmentPlanInput.disabled = true;
+    }
+    if (authorInput && authorInput.value) {
+        authorInput.disabled = true;
+    }
+});
+</script>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --bg-primary: #0b1120;
+        --bg-secondary: #0b1120;
+        --accent-color: #2ec8a6;
+        --text-primary: #f8fafc;
+        --text-secondary: #94a3b8;
+    }
+
+    body {
+        background-color: var(--bg-secondary);
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        color: var(--text-primary);
+    }
+
+    .form-container {
+        max-width: 700px;
+        background-color: var(--bg-primary);
+        margin: 40px auto;
+        padding: 30px;
+        border-radius: 12px;
+    }
+
+    .form-title {
+        text-align: center;
+        font-size: 1.6rem;
+        font-weight: bold;
+        margin-bottom: 25px;
+    }
+
+    label.form-label {
+        font-weight: 500;
+        color: var(--text-secondary);
+        margin-bottom: 5px;
+        display: block;
+    }
+
+    input, select, textarea {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid #3c4451;
+        border-radius: 10px;
+        background-color: var(--bg-secondary);
+        color: var(--text-primary);
+        transition: all 0.3s ease-in-out;
+    }
+
+    input:focus, select:focus, textarea:focus {
+        border-color: var(--accent-color);
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(46, 200, 166, 0.3);
+        background-color: var(--bg-primary);
+    }
+
+    .invalid-feedback {
+        font-size: 0.875rem;
+        color: #ff6b6b;
+        margin-top: 5px;
+    }
+
+    .btn {
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-weight: 500;
+        transition: background-color 0.3s ease;
+    }
+
+    .btn-primary {
+        background-color: var(--accent-color);
+        border: none;
+        color: var(--text-primary);
+    }
+
+    .btn-primary:hover {
+        background-color: #25a38a;
+    }
+
+    .btn-secondary {
+        background-color: #6c757d;
+        border: none;
+        color: white;
+    }
+
+    .btn-secondary:hover {
+        background-color: #565e64;
+    }
+
+    .alert {
+        padding: 12px 20px;
+        border-radius: 6px;
+        margin-bottom: 20px;
+        font-weight: 500;
+        transition: opacity 0.5s ease-out;
+        text-align: center;
+    }
+
+    .alert-danger {
+        background-color: #ff4d4d;
+        color: #fff;
+    }
+
+    @media (max-width: 768px) {
+        .row .col-md-6 {
+            margin-bottom: 15px;
+        }
+
+        .d-flex.justify-content-end {
+            flex-direction: column;
+        }
+
+        .d-flex.justify-content-end .btn {
+            width: 100%;
+            margin-bottom: 10px;
+        }
+    }
+</style>
+{% endblock %}

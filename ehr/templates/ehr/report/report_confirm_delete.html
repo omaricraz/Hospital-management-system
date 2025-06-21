@@ -1,0 +1,27 @@
+{% extends 'ehr/base.html' %}
+
+{% block title %}Delete Report{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h2>Confirm Deletion</h2>
+    </div>
+    <div class="card-body">
+        <p>Are you sure you want to delete the report <strong>"{{ object.title }}"</strong>?</p>
+        <p class="text-danger">This action cannot be undone. All report parameters and generated results will also be deleted.</p>
+        
+        <form method="post">
+            {% csrf_token %}
+            <div class="d-flex justify-content-between">
+                <a href="{% url 'report_detail' object.pk %}" class="btn btn-secondary">
+                    <i class="bi bi-x-circle"></i> Cancel
+                </a>
+                <button type="submit" class="btn btn-danger">
+                    <i class="bi bi-trash"></i> Delete Report
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

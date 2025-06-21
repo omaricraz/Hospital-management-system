@@ -1,0 +1,439 @@
+{% extends 'ehr/base.html' %}
+
+{% block title %}Billing Records{% endblock %}
+
+{% block content %}
+<style>
+    :root {
+        --bg-primary: #0b1120;
+        --bg-secondary: #0b1120;
+        --accent-color: #2ec8a6;
+        --text-primary: #f8fafc;
+        --text-secondary: #94a3b8;
+        --border-color: #1e293b;
+        
+        /* Status Colors */
+        --danger-color: #ff6b6b;      /* Denied */
+        --warning-color: #ffc107;     /* Pending */
+        --success-color: #8A5BFC;     /* Paid - Updated to purple */
+        --info-color: #17a2b8;        /* Appealed */
+    }
+
+    .billing-container {
+        background-color: var(--bg-secondary);
+        padding: 2rem;
+        min-height: 100vh;
+    }
+
+    .billing-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .billing-title {
+        font-size: 1.75rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin: 0;
+    }
+
+    .btn {
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 500;
+        font-size: 0.9rem;
+        transition: all 0.2s ease;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-primary {
+        background-color: var(--accent-color);
+        border: none;
+        color: var(--bg-primary);
+    }
+
+    .btn-primary:hover {
+        background-color: #25a38a;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .filters-container {
+        background-color: var(--bg-primary);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .filter-form {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        align-items: end;
+    }
+
+    .form-group {
+        margin-bottom: 0;
+    }
+
+    .form-label {
+        display: block;
+        font-size: 0.85rem;
+        font-weight: 500;
+        color: var(--text-secondary);
+        margin-bottom: 0.5rem;
+    }
+
+    .form-control, .form-select {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        background-color: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        color: var(--text-primary);
+        font-size: 0.9rem;
+        transition: all 0.2s ease;
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: var(--accent-color);
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(46, 200, 166, 0.2);
+    }
+
+    .btn-outline {
+        background-color: transparent;
+        border: 1px solid var(--accent-color);
+        color: var(--accent-color);
+    }
+
+    .btn-outline-secondary {
+        background-color: transparent;
+        border: 1px solid var(--text-secondary);
+        color: var(--text-secondary);
+    }
+
+    .btn-outline-secondary:hover {
+        border-color: var(--text-primary);
+        color: var(--text-primary);
+    }
+
+    .billing-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        background-color: var(--bg-primary);
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .billing-table thead th {
+        background-color: var(--bg-secondary);
+        color: var(--text-secondary);
+        font-weight: 600;
+        padding: 1rem;
+        text-align: left;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .billing-table tbody tr {
+        transition: background-color 0.2s ease;
+    }
+
+    .billing-table tbody tr:hover {
+        background-color: rgba(46, 200, 166, 0.05);
+    }
+
+    .billing-table tbody td {
+        padding: 1rem;
+        border-bottom: 1px solid var(--border-color);
+        color: var(--text-primary);
+    }
+
+    /* Status Badges */
+    .badge {
+        display: inline-block;
+        padding: 0.35rem 0.65rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        line-height: 1;
+        text-align: center;
+        white-space: nowrap;
+        vertical-align: baseline;
+        border-radius: 10rem;
+        color: #000; /* Black text for all badges */
+    }
+
+    .badge-pending {
+        background-color: var(--warning-color);
+    }
+
+    .badge-paid {
+        background-color: var(--success-color);
+    }
+
+    .badge-denied {
+        background-color: var(--danger-color);
+    }
+
+    .badge-appealed {
+        background-color: var(--info-color);
+    }
+
+    /* Action Buttons */
+    .action-buttons {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .btn-action {
+        padding: 0.5rem;
+        border-radius: 6px;
+        font-size: 0.8rem;
+        background-color: transparent;
+        border: 1px solid;
+        transition: all 0.2s ease;
+    }
+
+    .btn-view {
+        border-color: #3a86ff;
+        color: #3a86ff;
+    }
+
+    .btn-view:hover {
+        background-color: rgba(58, 134, 255, 0.1);
+    }
+
+    .btn-edit {
+        border-color: #ffbe0b;
+        color: #ffbe0b;
+    }
+
+    .btn-edit:hover {
+        background-color: rgba(255, 190, 11, 0.1);
+    }
+
+    .btn-delete {
+        border-color: #ff006e;
+        color: #ff006e;
+    }
+
+    .btn-delete:hover {
+        background-color: rgba(255, 0, 110, 0.1);
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 2rem;
+        color: var(--text-secondary);
+    }
+
+    .pagination {
+        display: flex;
+        justify-content: center;
+        margin-top: 2rem;
+    }
+
+    .page-item {
+        margin: 0 0.25rem;
+    }
+
+    .page-link {
+        padding: 0.5rem 0.75rem;
+        background-color: var(--bg-primary);
+        border: 1px solid var(--border-color);
+        color: var(--text-primary);
+        border-radius: 6px;
+        transition: all 0.2s ease;
+    }
+
+    .page-link:hover {
+        background-color: var(--bg-secondary);
+        border-color: var(--accent-color);
+    }
+
+    .page-item.active .page-link {
+        background-color: var(--accent-color);
+        border-color: var(--accent-color);
+        color: var(--bg-primary);
+    }
+
+    .page-item.disabled .page-link {
+        color: var(--text-secondary);
+        background-color: var(--bg-primary);
+        border-color: var(--border-color);
+    }
+
+    .insurance-icon {
+        font-size: 1.25rem;
+    }
+
+    @media (max-width: 768px) {
+        .billing-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+
+        .filter-form {
+            grid-template-columns: 1fr;
+        }
+
+        .billing-table {
+            display: block;
+            overflow-x: auto;
+        }
+    }
+</style>
+
+<div class="billing-container">
+    <div class="billing-header">
+        <h1 class="billing-title">Billing Records</h1>
+        {% if perms.ehr.add_billingrecord %}
+        <a href="{% url 'billing_record_create' %}" class="btn btn-primary">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            Add Billing Record
+        </a>
+        {% endif %}
+    </div>
+
+    <div class="filters-container">
+        <form method="get" class="filter-form">
+            <div class="form-group">
+                <label for="patient_id" class="form-label">Patient</label>
+                <select name="patient_id" id="patient_id" class="form-select">
+                    <option value="">All Patients</option>
+                    {% for patient in patient_list %}
+                    <option value="{{ patient.id }}" {% if request.GET.patient_id == patient.id|stringformat:"s" %}selected{% endif %}>
+                        {{ patient.first_name }} {{ patient.last_name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="status" class="form-label">Status</label>
+                <select name="status" id="status" class="form-select">
+                    <option value="">All Statuses</option>
+                    <option value="Pending" {% if request.GET.status == "Pending" %}selected{% endif %}>Pending</option>
+                    <option value="Paid" {% if request.GET.status == "Paid" %}selected{% endif %}>Paid</option>
+                    <option value="Denied" {% if request.GET.status == "Denied" %}selected{% endif %}>Denied</option>
+                    <option value="Appealed" {% if request.GET.status == "Appealed" %}selected{% endif %}>Appealed</option>
+                </select>
+            </div>
+            <div class="form-group d-flex align-items-end gap-2">
+                <button type="submit" class="btn btn-primary">Filter</button>
+                <a href="{% url 'billing_record_list' %}" class="btn btn-outline-secondary">Reset</a>
+            </div>
+        </form>
+    </div>
+
+    <div class="table-responsive">
+        <table class="billing-table">
+            <thead>
+                <tr>
+                    <th>Patient</th>
+                    <th>Service Date</th>
+                    <th>Description</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                    <th>Insurance Claim</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for record in object_list %}
+                <tr>
+                    <td>
+                        <a href="{% url 'patient_detail' record.patient.id %}" style="color: var(--accent-color);">
+                            {{ record.patient.first_name }} {{ record.patient.last_name }}
+                        </a>
+                    </td>
+                    <td>{{ record.service_date|date:"M d, Y" }}</td>
+                    <td>{{ record.service_description|truncatechars:30 }}</td>
+                    <td>${{ record.amount }}</td>
+                    <td>
+                        <span class="badge badge-{{ record.status|lower }}">
+                            {{ record.get_status_display }}
+                        </span>
+                    </td>
+                    <td>
+                        {% if record.insurance_claim %}
+                        <i class="bi bi-check-circle insurance-icon text-success"></i>
+                        {% else %}
+                        <i class="bi bi-x-circle insurance-icon text-secondary"></i>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="action-buttons">
+                            <a href="{% url 'billing_record_detail' record.id %}" class="btn-action btn-view" title="View">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                            {% if perms.ehr.change_billingrecord %}
+                            <a href="{% url 'billing_record_update' record.id %}" class="btn-action btn-edit" title="Edit">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            {% endif %}
+                            {% if perms.ehr.delete_billingrecord %}
+                            <a href="{% url 'billing_record_delete' record.id %}" class="btn-action btn-delete" title="Delete">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="empty-state">No billing records found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% if is_paginated %}
+    <nav aria-label="Page navigation">
+        <ul class="pagination">
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">Previous</a>
+            </li>
+            {% else %}
+            <li class="page-item disabled">
+                <a class="page-link" href="#" tabindex="-1">Previous</a>
+            </li>
+            {% endif %}
+            
+            {% for i in paginator.page_range %}
+            {% if page_obj.number == i %}
+            <li class="page-item active"><a class="page-link" href="#">{{ i }}</a></li>
+            {% else %}
+            <li class="page-item"><a class="page-link" href="?page={{ i }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">{{ i }}</a></li>
+            {% endif %}
+            {% endfor %}
+            
+            {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.next_page_number }}{% for key,value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">Next</a>
+            </li>
+            {% else %}
+            <li class="page-item disabled">
+                <a class="page-link" href="#" tabindex="-1">Next</a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+{% endblock %}

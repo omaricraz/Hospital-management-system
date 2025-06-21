@@ -1,0 +1,322 @@
+{% extends 'ehr/base.html' %}
+
+{% block title %}Edit Profile{% endblock %}
+
+{% block content %}
+<style>
+    :root {
+        --bg-primary: #0b1120;
+        --bg-secondary: #0b1120;
+        --accent-color: #2ec8a6;
+        --text-primary: #f8fafc;
+        --text-secondary: #94a3b8;
+        --error-color: #ff6b6b;
+        --border-color: #1e293b;
+    }
+
+    .profile-form {
+        max-width: 700px;
+        margin: 2rem auto;
+        padding: 2rem;
+        background-color: var(--bg-primary);
+        border-radius: 12px;
+        border: 1px solid var(--border-color);
+    }
+
+    .form-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .form-title {
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: var(--accent-color);
+        margin: 0;
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+    }
+
+    .form-group {
+        margin-bottom: 1rem;
+    }
+
+    .form-group.full-width {
+        grid-column: span 2;
+    }
+
+    .profile-picture-group {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .profile-picture-preview {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid var(--accent-color);
+    }
+
+    .profile-picture-upload {
+        position: relative;
+        width: 100%;
+        text-align: center;
+    }
+
+    .profile-picture-upload-label {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        background-color: var(--accent-color);
+        color: var(--bg-primary);
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 0.85rem;
+        font-weight: 500;
+    }
+
+    .profile-picture-input {
+        display: none;
+    }
+
+    label.form-label {
+        display: block;
+        font-size: 0.8rem;
+        font-weight: 500;
+        color: var(--text-secondary);
+        margin-bottom: 0.4rem;
+    }
+
+    input, select {
+        width: 100%;
+        padding: 0.65rem 0.9rem;
+        background-color: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        color: var(--text-primary);
+        font-size: 0.85rem;
+    }
+
+    input:focus, select:focus {
+        border-color: var(--accent-color);
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(46, 200, 166, 0.2);
+    }
+
+    .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.75rem;
+        margin-top: 1.5rem;
+    }
+
+    .btn {
+        padding: 0.65rem 1.25rem;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        font-weight: 500;
+    }
+
+    .btn-primary {
+        background-color: var(--accent-color);
+        border: none;
+        color: var(--bg-primary);
+    }
+
+    .invalid-feedback {
+        font-size: 0.75rem;
+        color: var(--error-color);
+    }
+
+    .professional-section {
+        grid-column: span 2;
+        padding: 1rem;
+        background-color: rgba(46, 200, 166, 0.05);
+        border-radius: 8px;
+        margin-top: 0.5rem;
+    }
+
+    .section-title {
+        font-size: 0.9rem;
+        color: var(--accent-color);
+        margin-bottom: 0.75rem;
+        font-weight: 500;
+    }
+
+    @media (max-width: 640px) {
+        .profile-form {
+            padding: 1.5rem;
+            margin: 1rem;
+        }
+
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .professional-section {
+            grid-column: span 1;
+        }
+    }
+</style>
+
+<div class="profile-form">
+    <div class="form-header">
+        <h2 class="form-title">Edit Profile</h2>
+        <a href="{% url 'profile' %}" class="btn btn-outline btn-sm">
+            <i class="bi bi-arrow-left"></i> Cancel
+        </a>
+    </div>
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        <div class="form-grid">
+            <!-- Profile Picture -->
+            <div class="form-group full-width">
+                <div class="profile-picture-group">
+                    {% if form.instance.profile_picture %}
+                    <img src="{{ form.instance.profile_picture.url }}" class="profile-picture-preview" id="profile-picture-preview">
+                    {% else %}
+                    <div class="profile-picture-preview d-flex align-items-center justify-content-center" style="background-color: var(--bg-secondary);">
+                        <i class="bi bi-person" style="font-size: 2.5rem; color: var(--text-secondary);"></i>
+                    </div>
+                    {% endif %}
+                    <div class="profile-picture-upload">
+                        <label for="{{ form.profile_picture.id_for_label }}" class="profile-picture-upload-label">
+                            <i class="bi bi-upload"></i> Change Photo
+                        </label>
+                        {{ form.profile_picture }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Personal Info -->
+            <div class="form-group">
+                <label for="{{ form.username.id_for_label }}" class="form-label">Username</label>
+                {{ form.username }}
+                {% if form.username.errors %}
+                    <div class="invalid-feedback">{{ form.username.errors.as_text }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.email.id_for_label }}" class="form-label">Email</label>
+                {{ form.email }}
+                {% if form.email.errors %}
+                    <div class="invalid-feedback">{{ form.email.errors.as_text }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.first_name.id_for_label }}" class="form-label">First Name</label>
+                {{ form.first_name }}
+                {% if form.first_name.errors %}
+                    <div class="invalid-feedback">{{ form.first_name.errors.as_text }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.last_name.id_for_label }}" class="form-label">Last Name</label>
+                {{ form.last_name }}
+                {% if form.last_name.errors %}
+                    <div class="invalid-feedback">{{ form.last_name.errors.as_text }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.phone_number.id_for_label }}" class="form-label">Phone</label>
+                {{ form.phone_number }}
+                {% if form.phone_number.errors %}
+                    <div class="invalid-feedback">{{ form.phone_number.errors.as_text }}</div>
+                {% endif %}
+            </div>
+
+            <!-- Professional Section -->
+            {% if user.is_staff %}
+            <div class="professional-section">
+                <h3 class="section-title">Professional Information</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="{{ form.role.id_for_label }}" class="form-label">Role</label>
+                        {{ form.role }}
+                    </div>
+
+                    {% if form.instance.role == "DOCTOR" or form.instance.role == "NURSE" %}
+                        <div class="form-group">
+                            <label for="{{ form.license_number.id_for_label }}" class="form-label">License</label>
+                            {{ form.license_number }}
+                        </div>
+
+                        <div class="form-group">
+                            <label for="{{ form.specialization.id_for_label }}" class="form-label">Specialization</label>
+                            {{ form.specialization }}
+                        </div>
+
+                        <div class="form-group">
+                            <label for="{{ form.department.id_for_label }}" class="form-label">Department</label>
+                            {{ form.department }}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-save"></i> Save Changes
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Profile picture preview
+        const pictureInput = document.getElementById('{{ form.profile_picture.id_for_label }}');
+        const preview = document.getElementById('profile-picture-preview');
+        
+        if (pictureInput && preview) {
+            pictureInput.addEventListener('change', function() {
+                if (this.files && this.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        if (preview.tagName === 'IMG') {
+                            preview.src = e.target.result;
+                        } else {
+                            const img = document.createElement('img');
+                            img.src = e.target.result;
+                            img.className = 'profile-picture-preview';
+                            img.id = 'profile-picture-preview';
+                            preview.replaceWith(img);
+                        }
+                    }
+                    reader.readAsDataURL(this.files[0]);
+                }
+            });
+        }
+
+        // Form animation
+        const form = document.querySelector('.profile-form');
+        form.style.opacity = '0';
+        form.style.transform = 'translateY(10px)';
+        form.style.transition = 'all 0.3s ease';
+        
+        setTimeout(() => {
+            form.style.opacity = '1';
+            form.style.transform = 'translateY(0)';
+        }, 50);
+    });
+</script>
+{% endblock %}

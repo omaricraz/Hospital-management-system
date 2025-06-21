@@ -1,0 +1,229 @@
+{% extends 'ehr/base.html' %}
+
+{% block title %}{% if object %}Edit{% else %}Create{% endif %} Treatment Plan{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <div class="icon-header">
+        <!-- Optional: Add an icon here -->
+        <h2 class="form-title">{% if object %}Edit{% else %}Create{% endif %} Treatment Plan</h2>
+    </div>
+    <form method="post">
+        {% csrf_token %}
+        
+        {% if form.non_field_errors %}
+        <div class="alert alert-danger">
+            {% for error in form.non_field_errors %}
+            {{ error }}
+            {% endfor %}
+        </div>
+        {% endif %}
+        
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label for="{{ form.patient.id_for_label }}" class="form-label">Patient</label>
+                {{ form.patient }}
+                {% for error in form.patient.errors %}
+                <div class="invalid-feedback">{{ error }}</div>
+                {% endfor %}
+            </div>
+            <div class="col-md-6">
+                <label for="{{ form.provider.id_for_label }}" class="form-label">Provider</label>
+                {{ form.provider }}
+                {% for error in form.provider.errors %}
+                <div class="invalid-feedback">{{ error }}</div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label for="{{ form.diagnosis.id_for_label }}" class="form-label">Diagnosis</label>
+                {{ form.diagnosis }}
+                {% for error in form.diagnosis.errors %}
+                <div class="invalid-feedback">{{ error }}</div>
+                {% endfor %}
+            </div>
+            <div class="col-md-6">
+                <label for="{{ form.is_active.id_for_label }}" class="form-label">Status</label>
+                {{ form.is_active }}
+                {% for error in form.is_active.errors %}
+                <div class="invalid-feedback">{{ error }}</div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label for="{{ form.start_date.id_for_label }}" class="form-label">Start Date</label>
+                {{ form.start_date }}
+                {% for error in form.start_date.errors %}
+                <div class="invalid-feedback">{{ error }}</div>
+                {% endfor %}
+            </div>
+            <div class="col-md-6">
+                <label for="{{ form.end_date.id_for_label }}" class="form-label">End Date (optional)</label>
+                {{ form.end_date }}
+                {% for error in form.end_date.errors %}
+                <div class="invalid-feedback">{{ error }}</div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label for="{{ form.goals.id_for_label }}" class="form-label">Goals</label>
+            {{ form.goals }}
+            {% for error in form.goals.errors %}
+            <div class="invalid-feedback">{{ error }}</div>
+            {% endfor %}
+        </div>
+
+        <div class="d-flex justify-content-end">
+            <a href="{% if object %}{% url 'treatment_plan_detail' object.pk %}{% else %}{% url 'treatment_plan_list' %}{% endif %}" 
+               class="btn btn-secondary me-2">Cancel</a>
+            <button type="submit" class="btn btn-primary">Save</button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const startDateInput = document.getElementById('{{ form.start_date.id_for_label }}');
+    const endDateInput = document.getElementById('{{ form.end_date.id_for_label }}');
+    
+    if (startDateInput) {
+        startDateInput.type = 'date';
+    }
+    if (endDateInput) {
+        endDateInput.type = 'date';
+    }
+});
+</script>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --bg-primary: #0b1120;
+        --bg-secondary: #0b1120;
+        --accent-color: #2ec8a6;
+        --text-primary: #f8fafc;
+        --text-secondary: #94a3b8;
+    }
+
+    body {
+        background-color: var(--bg-secondary);
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        color: var(--text-primary);
+    }
+
+    .form-container {
+        background-color: var(--bg-primary);
+        max-width: 700px;
+        margin: 40px auto;
+        padding: 30px;
+        border-radius: 16px;
+    }
+
+    .icon-header {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    .form-title {
+        font-size: 1.6rem;
+        font-weight: bold;
+        margin-bottom: 25px;
+    }
+
+    label.form-label {
+        font-weight: 500;
+        color: var(--text-secondary);
+        margin-bottom: 5px;
+        display: block;
+    }
+
+    input, select, textarea {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid #3c4451;
+        border-radius: 10px;
+        background-color: var(--bg-secondary);
+        color: var(--text-primary);
+        margin-bottom: 10px;
+        transition: all 0.3s ease-in-out;
+    }
+
+    input:focus, select:focus, textarea:focus {
+        border-color: var(--accent-color);
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(46, 200, 166, 0.3);
+        background-color: var(--bg-primary);
+    }
+
+    .invalid-feedback {
+        font-size: 0.875rem;
+        color: #ff6b6b;
+        margin-top: -8px;
+        margin-bottom: 8px;
+    }
+
+    .btn {
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-weight: 500;
+        transition: background-color 0.3s ease;
+    }
+
+    .btn-primary {
+        background-color: var(--accent-color);
+        border: none;
+        color: var(--text-primary);
+    }
+
+    .btn-primary:hover {
+        background-color: #25a38a;
+    }
+
+    .btn-secondary {
+        background-color: #6c757d;
+        border: none;
+        color: white;
+    }
+
+    .btn-secondary:hover {
+        background-color: #565e64;
+    }
+
+    .alert {
+        padding: 12px 20px;
+        border-radius: 6px;
+        margin-bottom: 20px;
+        font-weight: 500;
+        text-align: center;
+    }
+
+    .alert-danger {
+        background-color: #e74c3c;
+        color: white;
+    }
+
+    @media (max-width: 768px) {
+        .row .col-md-6 {
+            width: 100%;
+            margin-bottom: 15px;
+        }
+
+        .d-flex.justify-content-end {
+            flex-direction: column;
+        }
+
+        .d-flex.justify-content-end .btn {
+            width: 100%;
+            margin-bottom: 10px;
+        }
+    }
+</style>
+{% endblock %}
